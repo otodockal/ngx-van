@@ -4,7 +4,7 @@
 
 # \<ngx-van\>: The Navigation Section element with built-in Mobile Superpowers
 
-> Replacement for HTML nav element with mobile side nav menu built-in. Good old nav element on desktop, sliding side nav on mobile. No duplication.
+> Tiny replacement for HTML nav element with mobile side nav menu built-in. Good old nav element on desktop, sliding side nav on mobile. No duplication.
 
 ## Installation
 
@@ -12,9 +12,12 @@
 npm install ngx-van @angular/animations @angular/cdk
 ```
 
-## Demo
+## Demos
 
-> https://bit.ly/3r4Adt3
+-   [Vertical menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/angular-ivy-afbbds?file=src/app/app.component.html)
+-   [Vertical menu, \<ngx-van side="end"\>](https://stackblitz.com/edit/angular-ivy-51wp1y?file=src%2Fapp%2Fapp.component.html)
+-   [Horizontal menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/angular-ivy-yczdag?file=src%2Fapp%2Fapp.component.html)
+-   [Horizontal menu, \<ngx-van side="end"\>](https://stackblitz.com/edit/angular-ivy-mqsvwt?file=src%2Fapp%2Fapp.component.html)
 
 ## TS
 
@@ -25,39 +28,39 @@ import { NgxVanModule } from 'ngx-van';
 ## HTML
 
 ```html
-<button [ngxVanTriggerFor]="ngxVan">
-    <mat-icon>{{ ngxVan.isOpen ? 'close' : 'menu' }}</mat-icon>
+<button [ngxVanTriggerFor]="van">
+    <mat-icon>{{ van.isOpen ? 'close' : 'menu' }}</mat-icon>
 </button>
 
-<ngx-van [breakpoint]="991" [side]="'end'" #ngxVan>
+<ngx-van [breakpoint]="991" [side]="'end'" #van>
     <ul>
         <li>
             <a ngx-van-item routerLink="/home">
-                <mat-icon *ngIf="ngxVan.menu === 'mobile'">inbox</mat-icon>
+                <mat-icon *ngIf="van.menu === 'mobile'">inbox</mat-icon>
                 Inbox
             </a>
         </li>
         <li>
             <a ngx-van-item routerLink="/menu">
-                <mat-icon *ngIf="ngxVan.menu === 'mobile'">star</mat-icon>
+                <mat-icon *ngIf="van.menu === 'mobile'">star</mat-icon>
                 Starred
             </a>
         </li>
         <li>
             <a ngx-van-item routerLink="/about">
-                <mat-icon *ngIf="ngxVan.menu === 'mobile'">label_important</mat-icon>
+                <mat-icon *ngIf="van.menu === 'mobile'">label_important</mat-icon>
                 Important
             </a>
         </li>
         <li>
             <a ngx-van-item routerLink="/about">
-                <mat-icon *ngIf="ngxVan.menu === 'mobile'">drafts</mat-icon>
+                <mat-icon *ngIf="van.menu === 'mobile'">drafts</mat-icon>
                 Drafts
             </a>
         </li>
         <li>
             <a ngx-van-item routerLink="/contact">
-                <mat-icon *ngIf="ngxVan.menu === 'mobile'">delete</mat-icon>
+                <mat-icon *ngIf="van.menu === 'mobile'">delete</mat-icon>
                 Deleted
             </a>
         </li>
