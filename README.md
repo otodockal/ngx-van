@@ -35,31 +35,19 @@ import { NgxVanModule } from 'ngx-van';
 <ngx-van [breakpoint]="991" [side]="'end'" #van>
     <ul>
         <li>
-            <a ngx-van-item routerLink="/home">
-                <mat-icon *ngIf="van.menu === 'mobile'">inbox</mat-icon>
-                Inbox
-            </a>
+            <a ngx-van-item routerLink="/inbox">Inbox</a>
         </li>
         <li>
-            <a ngx-van-item routerLink="/menu">
-                <mat-icon *ngIf="van.menu === 'mobile'">star</mat-icon>
-                Starred
-            </a>
+            <a ngx-van-item routerLink="/starred">Starred</a>
         </li>
         <li>
-            <a ngx-van-item routerLink="/about">
-                <mat-icon *ngIf="van.menu === 'mobile'">label_important</mat-icon>
-                Important
-            </a>
+            <a ngx-van-item routerLink="/important">Important</a>
         </li>
         <li>
-            <a ngx-van-item routerLink="/about">
-                <mat-icon *ngIf="van.menu === 'mobile'">drafts</mat-icon>
-                Drafts
-            </a>
+            <a ngx-van-item routerLink="/drafts">Drafts</a>
         </li>
         <li>
-            <a ngx-van-item routerLink="/contact">
+            <a ngx-van-item routerLink="/deleted">
                 <mat-icon *ngIf="van.menu === 'mobile'">delete</mat-icon>
                 Deleted
             </a>
@@ -68,7 +56,7 @@ import { NgxVanModule } from 'ngx-van';
 </ngx-van>
 ```
 
-## SCSS
+## CSS
 
 -   CSS for mobile menu only.
 -   Add snippet to style.scss. It has to be declared in the global scope.
@@ -77,7 +65,7 @@ import { NgxVanModule } from 'ngx-van';
 ```scss
 .ngx-van-mobile {
     nav {
-        top: 60px; // in the case your navbar is 60px height
+        top: 60px;
         width: 300px;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
@@ -98,7 +86,7 @@ import { NgxVanModule } from 'ngx-van';
 }
 .ngx-van-mobile-backdrop {
     position: fixed;
-    top: 60px !important; // in the case your navbar is 60px height
+    top: 60px !important;
     right: 0;
     width: 100%;
     height: 100%;
@@ -122,8 +110,9 @@ import { NgxVanModule } from 'ngx-van';
 
 ## TODO
 
+-   [Use Nx monorepo](https://nx.dev/)
+-   Create ref service once PR #44666 is merged (https://github.com/angular/angular/pull/44666)
 -   Add config using DI tokens and Inputs
--   Add more examples
 -   Add tests
 -   Improve a11y
 
