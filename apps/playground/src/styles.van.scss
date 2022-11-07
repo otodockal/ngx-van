@@ -1,0 +1,34 @@
+/**
+* ngx-van mobile
+*/
+.ngx-van-mobile {
+    nav {
+        top: 60px;
+        width: 200px;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 20px;
+            a {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                height: 40px;
+                text-align: left;
+                color: #fff;
+                text-decoration: none;
+            }
+        }
+    }
+}
+.ngx-van-mobile-backdrop {
+    position: fixed;
+    top: 60px !important;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(12px);
+    background-color: rgba(0, 0, 0, 0.5);
+}

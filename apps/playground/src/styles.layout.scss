@@ -1,0 +1,37 @@
+.layout {
+    display: grid;
+    grid-template-rows: 60px 1fr 30px;
+    height: 100vh;
+
+    header {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        border-bottom: 1px solid #000;
+
+        button {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+    ngx-van {
+        position: relative;
+    }
+    main {
+        padding: 10px;
+    }
+    footer {
+        border-top: 1px solid #000;
+        display: flex;
+        align-items: center;
+    }
+    @media only screen and (max-width: 600px) {
+        ngx-van {
+            border-right: 0;
+        }
+    }
+}
