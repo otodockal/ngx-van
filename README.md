@@ -9,7 +9,11 @@
 ## Installation
 
 ```bash
-npm install ngx-van @angular/animations @angular/cdk
+npm install ngx-van
+```
+
+```bash
+yarn add ngx-van
 ```
 
 ## Demos
@@ -110,7 +114,6 @@ import { NgxVanModule } from 'ngx-van';
 
 ## TODO
 
--   [Use Nx monorepo](https://nx.dev/)
 -   Create ref service once PR #44666 is merged (https://github.com/angular/angular/pull/44666)
 -   Add config using DI tokens and Inputs
 -   Add tests

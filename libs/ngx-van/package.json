@@ -4,8 +4,7 @@
   "description": "<ngx-van>: The Navigation Section element with built-in Mobile Superpowers",
   "peerDependencies": {
     "@angular/common": "^14.2.0",
-    "@angular/core": "^14.2.0",
-    "@angular/animations": "^14.2.0"
+    "@angular/core": "^14.2.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
