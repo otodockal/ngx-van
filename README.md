@@ -26,6 +26,7 @@ yarn add ngx-van
 ## TS
 
 ```ts
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxVanModule } from 'ngx-van';
 ```
 

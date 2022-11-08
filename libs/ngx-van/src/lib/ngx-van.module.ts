@@ -6,23 +6,12 @@ import { NgModule } from '@angular/core';
 import { NgxVanItemDirective } from './ngx-van-item.directive';
 import { NgxVanTriggerForDirective } from './ngx-van-trigger-for.directive';
 import { NgxVanComponent } from './ngx-van.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-const COMPONENTS = [
-  NgxVanComponent,
-  NgxVanItemDirective,
-  NgxVanTriggerForDirective,
-];
+const COMPONENTS = [NgxVanComponent, NgxVanItemDirective, NgxVanTriggerForDirective];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    PortalModule,
-    OverlayModule,
-    A11yModule,
-    BrowserAnimationsModule,
-  ],
-  declarations: [COMPONENTS],
-  exports: [COMPONENTS],
+    imports: [CommonModule, PortalModule, OverlayModule, A11yModule],
+    declarations: [COMPONENTS],
+    exports: [COMPONENTS],
 })
 export class NgxVanModule {}
