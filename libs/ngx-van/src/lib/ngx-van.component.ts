@@ -13,7 +13,7 @@ import {
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
-import { combineLatest, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 import { ngxVanAnimations } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
 
@@ -54,6 +54,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
     @ViewChild('navContainer')
     private readonly _navContainerTpl: TemplateRef<HTMLElement> | null = null;
 
+    protected readonly _events$ = this._ngxVanService.events$;
     protected _navContainerPortal: TemplatePortal<any> | null = null;
     protected get _voidMobileStyle() {
         if (this.menu === 'mobile') {
@@ -64,17 +65,13 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
         return null;
     }
 
-    readonly _events$ = this._ngxVanService.events$;
     isOpen = false;
     menu: 'mobile' | 'desktop' | null = null;
 
     ngOnInit() {
         if (this._isBrowser) {
-            this._ngxVanService.listenOnResize(this.breakpoint);
-            combineLatest({
-                isOpen: this._ngxVanService.isOpen$,
-                menu: this._ngxVanService.menu$,
-            })
+            this._ngxVanService.waitForDesktopAndClose(this.breakpoint);
+            this._ngxVanService.vm$
                 .pipe(takeUntil(this._ngxVanService.onDestroy$))
                 .subscribe(({ isOpen, menu }) => {
                     this.isOpen = isOpen;
@@ -91,7 +88,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
             if (this._navContainerTpl) {
                 this._navContainerPortal = new TemplatePortal(
                     this._navContainerTpl,
-                    this._viewContainer
+                    this._viewContainer,
                 );
             }
             this._cd.markForCheck();
@@ -107,7 +104,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
                     triggerEl,
                     this._navContainerTpl.elementRef.nativeElement,
                     this._navContainerPortal,
-                    this.side
+                    this.side,
                 );
             }
         }
@@ -115,7 +112,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
 
     toggleMobileMenuAnimationDone(e: AnimationEvent) {
         if (e.toState === 'closeLeft' || e.toState === 'closeRight') {
-            this._ngxVanService.dispose();
+            this._ngxVanService.close();
         }
     }
 
@@ -124,6 +121,6 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
     }
 
     closeMobileMenuNow() {
-        this._ngxVanService.dispose();
+        this._ngxVanService.close();
     }
 }

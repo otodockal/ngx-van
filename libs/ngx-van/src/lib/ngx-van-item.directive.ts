@@ -9,9 +9,9 @@ import { NgxVanComponent } from './ngx-van.component';
     },
 })
 export class NgxVanItemDirective {
-    private _ngxVaComponent = inject(NgxVanComponent);
+    private readonly _ngxVaComponent = inject(NgxVanComponent);
 
-    close() {
+    protected close() {
         this._ngxVaComponent.closeMobileMenuNow();
     }
 }

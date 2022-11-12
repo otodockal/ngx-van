@@ -6,27 +6,20 @@ import { NgxVanComponent } from './ngx-van.component';
     selector: '[ngxVanTriggerFor]',
     host: {
         '(click)': '_handleClick()',
-        '[style.display]': '!_isVisible ? "none" : null',
+        '[style.display]': '!_isVisible && !alwaysVisible ? "none" : null',
     },
 })
 export class NgxVanTriggerForDirective {
-    private readonly _elRef: HTMLElement = inject(ElementRef).nativeElement;
+    private readonly _el: HTMLElement = inject(ElementRef).nativeElement;
 
     @Input() ngxVanTriggerFor: NgxVanComponent | null = null;
+    @Input() alwaysVisible = false;
 
-    get _isVisible() {
+    protected get _isVisible() {
         return this.ngxVanTriggerFor?.menu === 'mobile';
     }
 
-    constructor() {
-        this.ngxVanTriggerFor?._events$.subscribe((e) => {
-            if (e?.includes('left')) {
-                this._elRef.focus();
-            }
-        });
-    }
-
-    _handleClick() {
-        this.ngxVanTriggerFor?.toggleMobileMenu(this._elRef);
+    protected _handleClick() {
+        this.ngxVanTriggerFor?.toggleMobileMenu(this._el);
     }
 }

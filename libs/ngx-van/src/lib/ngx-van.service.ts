@@ -1,14 +1,10 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import {
-    ChangeDetectorRef,
-    inject,
-    Injectable,
-    OnDestroy,
-} from '@angular/core';
+import { ChangeDetectorRef, inject, Injectable, OnDestroy } from '@angular/core';
 import {
     BehaviorSubject,
     catchError,
+    combineLatest,
     distinctUntilChanged,
     EMPTY,
     filter,
@@ -30,17 +26,22 @@ export class NgxVanService implements OnDestroy {
     private _triggerEl: HTMLElement | null = null;
 
     readonly onDestroy$ = new Subject<void>();
-    readonly events$ = new Subject<
-        'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
-    >();
+    readonly events$ = new Subject<'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null>();
     readonly menu$ = new BehaviorSubject<'mobile' | 'desktop' | null>(null);
     readonly isOpen$ = new BehaviorSubject(false);
+    readonly vm$ = combineLatest({
+        isOpen: this.isOpen$,
+        menu: this.menu$,
+    });
 
+    /**
+     * Open nav overlay element
+     */
     open(
         triggerEl: HTMLElement,
         target: Element,
         navContainerPortal: TemplatePortal<any>,
-        type: 'start' | 'end'
+        type: 'start' | 'end',
     ) {
         this._triggerEl = triggerEl;
         const positionStrategy = this._overlay
@@ -57,6 +58,7 @@ export class NgxVanService implements OnDestroy {
             .withPush(false)
             .withFlexibleDimensions(false);
 
+        // create nav overlay
         this._overlayRef = this._overlay.create({
             hasBackdrop: true,
             backdropClass: 'ngx-van-mobile-backdrop',
@@ -65,17 +67,20 @@ export class NgxVanService implements OnDestroy {
             scrollStrategy: this._overlay.scrollStrategies.block(),
             disposeOnNavigation: true,
         });
-
-        // TODO: https://github.com/angular/components/pull/24570/files#diff-fcade7d193ab41c7b9e2b072af496bedcf5b73ee519e237e32f8f5e00328246dR299
         this._overlayRef.attach(navContainerPortal);
+
         // bind closing events
-        this._bindEvents(this._overlayRef, type);
+        this._waitForCloseEvents(this._overlayRef, type);
         // focus first focusable el
         this._focusFirstFocusableElement(this._overlayRef);
+
         return this._overlayRef;
     }
 
-    dispose() {
+    /**
+     * Close nav overlay element without animation (or a delay)
+     */
+    close() {
         if (this._overlayRef) {
             this._overlayRef.dispose();
             this._overlayRef = null;
@@ -84,25 +89,31 @@ export class NgxVanService implements OnDestroy {
         }
     }
 
+    /**
+     * Close nav overlay element with considered animation (or a delay)
+     */
     scheduleClose(type: 'start' | 'end') {
         this.events$.next(type === 'start' ? 'closeLeft' : 'closeRight');
     }
 
-    listenOnResize(breakpoint: number | null) {
+    /**
+     * On window resize event check if menuType is 'desktop' and remove overlay eventually
+     */
+    waitForDesktopAndClose(breakpoint: number | null) {
         if (breakpoint !== null) {
             fromEvent(window, 'resize')
                 .pipe(
                     startWith(this._getMenuType(breakpoint)),
                     map(() => this._getMenuType(breakpoint)),
                     distinctUntilChanged(),
-                    takeUntil(this.onDestroy$)
+                    takeUntil(this.onDestroy$),
                 )
                 .subscribe((menuType) => {
                     this.menu$.next(menuType);
                     // clear animation state
                     if (menuType === 'desktop') {
                         this.events$.next(null);
-                        this.dispose();
+                        this.close();
                     }
                     this._cd.markForCheck();
                 });
@@ -113,9 +124,9 @@ export class NgxVanService implements OnDestroy {
     }
 
     /**
-     * Dynamically bind events
+     * Schedule close on Esc click, Backdrop click
      */
-    private _bindEvents(overlayRef: OverlayRef, type: 'start' | 'end') {
+    private _waitForCloseEvents(overlayRef: OverlayRef, type: 'start' | 'end') {
         // notify UI
         this.isOpen$.next(true);
         this.events$.next(type === 'end' ? 'openLeft' : 'openRight');
@@ -124,11 +135,11 @@ export class NgxVanService implements OnDestroy {
             // Esc click
             overlayRef.keydownEvents().pipe(filter((e) => e.keyCode === 27)),
             // Backdrop click
-            overlayRef.backdropClick()
+            overlayRef.backdropClick(),
         )
             .pipe(
                 first(),
-                catchError(() => EMPTY)
+                catchError(() => EMPTY),
             )
             .subscribe((_) => {
                 this.scheduleClose(type);
@@ -146,6 +157,9 @@ export class NgxVanService implements OnDestroy {
             });
     }
 
+    /**
+     * Focus first anchor element on overlay open
+     */
     private _focusFirstFocusableElement(overlayRef: OverlayRef) {
         const focusable = overlayRef.hostElement.querySelector('a');
         if (focusable) {
@@ -153,6 +167,9 @@ export class NgxVanService implements OnDestroy {
         }
     }
 
+    /**
+     * Menu type based on given breakpoint size: 'mobile' or 'desktop'
+     */
     private _getMenuType(breakPointSize: number) {
         return window.innerWidth <= breakPointSize ? 'mobile' : 'desktop';
     }
