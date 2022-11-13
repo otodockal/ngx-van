@@ -1,7 +1,3 @@
-:host {
-    display: block;
-}
-
 header {
     display: flex;
     align-items: center;
@@ -58,7 +54,7 @@ main {
 
 footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding-left: 10px;
     padding-right: 10px;
     font-weight: 100;

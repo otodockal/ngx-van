@@ -1,5 +1,5 @@
 <p align="center">
- <img width="200px" src="./logo.png">
+ <img width="300px" src="./apps/playground/src/assets/logo.png">
 </p>
 
 # \<ngx-van\>: The Navigation Section element with built-in Mobile Superpowers
@@ -115,9 +115,5 @@ import { NgxVanModule } from 'ngx-van';
 
 ## TODO
 
--   Create ref service once PR #44666 is merged (https://github.com/angular/angular/pull/44666)
--   Add config using DI tokens and Inputs
 -   Add tests
 -   Improve a11y
-
-<div>Icons made by <a href="https://www.flaticon.com/authors/linector" title="Linector">Linector</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
