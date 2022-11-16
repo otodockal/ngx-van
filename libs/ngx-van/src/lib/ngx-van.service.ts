@@ -1,6 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectorRef, inject, Injectable, NgZone, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, inject, Injectable, OnDestroy } from '@angular/core';
 import {
     BehaviorSubject,
     catchError,
@@ -21,7 +21,6 @@ import {
 export class NgxVanService implements OnDestroy {
     private readonly _cd = inject(ChangeDetectorRef);
     private readonly _overlay = inject(Overlay);
-    private readonly _ngZone = inject(NgZone);
 
     private _overlayRef: OverlayRef | null = null;
     private _triggerEl: HTMLElement | null = null;
@@ -102,26 +101,22 @@ export class NgxVanService implements OnDestroy {
      */
     waitForDesktopAndClose(breakpoint: number | null) {
         if (breakpoint !== null) {
-            this._ngZone.runOutsideAngular(() => {
-                fromEvent(window, 'resize')
-                    .pipe(
-                        startWith(this._getMenuType(breakpoint)),
-                        map(() => this._getMenuType(breakpoint)),
-                        distinctUntilChanged(),
-                        takeUntil(this.onDestroy$),
-                    )
-                    .subscribe((menuType) => {
-                        this._ngZone.run(() => {
-                            this.menu$.next(menuType);
-                            // clear animation state
-                            if (menuType === 'desktop') {
-                                this.events$.next(null);
-                                this.close();
-                            }
-                            this._cd.markForCheck();
-                        });
-                    });
-            });
+            fromEvent(window, 'resize')
+                .pipe(
+                    startWith(this._getMenuType(breakpoint)),
+                    map(() => this._getMenuType(breakpoint)),
+                    distinctUntilChanged(),
+                    takeUntil(this.onDestroy$),
+                )
+                .subscribe((menuType) => {
+                    this.menu$.next(menuType);
+                    // clear animation state
+                    if (menuType === 'desktop') {
+                        this.events$.next(null);
+                        this.close();
+                    }
+                    this._cd.markForCheck();
+                });
         } else {
             this.menu$.next('desktop');
             this._cd.markForCheck();
