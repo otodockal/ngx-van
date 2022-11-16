@@ -66,7 +66,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
     }
 
     isOpen = false;
-    menu: 'mobile' | 'desktop' | null = null;
+    menu: 'mobile' | 'desktop' | null = !this._isBrowser ? 'desktop' : null;
 
     ngOnInit() {
         if (this._isBrowser) {
@@ -78,8 +78,6 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
                     this.menu = menu;
                     this._cd.markForCheck();
                 });
-        } else {
-            this._ngxVanService.menu$.next('desktop');
         }
     }
 
