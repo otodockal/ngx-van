@@ -26,7 +26,11 @@ yarn add ngx-van
 ## TS
 
 ```ts
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// with or without animations
+import {
+    BrowserAnimationsModule, // ✅
+    NoopAnimationsModule, // ❎
+} from '@angular/platform-browser/animations';
 import { NgxVanModule } from 'ngx-van';
 ```
 
@@ -116,4 +120,3 @@ import { NgxVanModule } from 'ngx-van';
 ## TODO
 
 -   Add tests
--   Improve a11y

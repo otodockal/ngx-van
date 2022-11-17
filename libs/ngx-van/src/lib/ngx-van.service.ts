@@ -79,7 +79,7 @@ export class NgxVanService implements OnDestroy {
     }
 
     /**
-     * Close nav overlay element without animation (or a delay)
+     * Close nav overlay element without animation
      */
     close() {
         if (this._overlayRef) {
@@ -91,7 +91,7 @@ export class NgxVanService implements OnDestroy {
     }
 
     /**
-     * Close nav overlay element with considered animation (or a delay)
+     * Close nav overlay element with respect to animation
      */
     scheduleClose(type: 'start' | 'end') {
         this.events$.next(type === 'start' ? 'closeLeft' : 'closeRight');
@@ -126,6 +126,10 @@ export class NgxVanService implements OnDestroy {
             this.menu$.next('desktop');
             this._cd.markForCheck();
         }
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
     }
 
     /**
@@ -177,9 +181,5 @@ export class NgxVanService implements OnDestroy {
      */
     private _getMenuType(breakPointSize: number) {
         return window.innerWidth <= breakPointSize ? 'mobile' : 'desktop';
-    }
-
-    ngOnDestroy() {
-        this.onDestroy$.next();
     }
 }

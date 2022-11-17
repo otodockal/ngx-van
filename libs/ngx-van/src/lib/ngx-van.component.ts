@@ -28,7 +28,7 @@ import { NgxVanService } from './ngx-van.service';
             <nav
                 [style]="_voidMobileStyle"
                 [@nav]="_events$ | async"
-                (@nav.done)="toggleMobileMenuAnimationDone($event)"
+                (@nav.done)="_closeMobileMenuOnAnimationDone($event)"
                 [cdkTrapFocus]="isOpen"
             >
                 <ng-content></ng-content>
@@ -83,42 +83,47 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         Promise.resolve().then(() => {
-            if (this._navContainerTpl) {
-                this._navContainerPortal = new TemplatePortal(
-                    this._navContainerTpl,
-                    this._viewContainer,
-                );
-            }
+            this._navContainerPortal = new TemplatePortal(
+                this._navContainerTpl!,
+                this._viewContainer,
+            );
             this._cd.markForCheck();
         });
     }
 
+    /**
+     * Toggle mobile menu
+     */
     toggleMobileMenu(triggerEl: HTMLElement) {
         if (this._ngxVanService.isOpen$.value) {
-            this._ngxVanService.scheduleClose(this.side);
+            this.closeMobileMenu();
         } else {
-            if (this._navContainerTpl && this._navContainerPortal) {
-                this._ngxVanService.open(
-                    triggerEl,
-                    this._navContainerTpl.elementRef.nativeElement,
-                    this._navContainerPortal,
-                    this.side,
-                );
-            }
+            this._ngxVanService.open(
+                triggerEl,
+                this._navContainerTpl!.elementRef.nativeElement,
+                this._navContainerPortal!,
+                this.side,
+            );
         }
     }
 
-    toggleMobileMenuAnimationDone(e: AnimationEvent) {
-        if (e.toState === 'closeLeft' || e.toState === 'closeRight') {
-            this._ngxVanService.close();
-        }
-    }
-
+    /**
+     * Close mobile menu with respect to animation
+     */
     closeMobileMenu() {
         this._ngxVanService.scheduleClose(this.side);
     }
 
+    /**
+     * Close mobile menu without animation
+     */
     closeMobileMenuNow() {
         this._ngxVanService.close();
+    }
+
+    protected _closeMobileMenuOnAnimationDone(e: AnimationEvent) {
+        if (e.toState === 'closeLeft' || e.toState === 'closeRight') {
+            this.closeMobileMenuNow();
+        }
     }
 }

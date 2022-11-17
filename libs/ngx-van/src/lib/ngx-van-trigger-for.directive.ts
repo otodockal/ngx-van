@@ -4,7 +4,7 @@ import { NgxVanComponent } from './ngx-van.component';
 @Directive({
     selector: '[ngxVanTriggerFor]',
     host: {
-        '(click)': '_handleClick()',
+        '(click)': '_toggleMobileMenu()',
         '[style.display]': '!_isVisible && !visible ? "none" : null',
     },
 })
@@ -18,7 +18,7 @@ export class NgxVanTriggerForDirective {
         return this.ngxVanTriggerFor?.menu === 'mobile';
     }
 
-    protected _handleClick() {
+    protected _toggleMobileMenu() {
         this.ngxVanTriggerFor?.toggleMobileMenu(this._el);
     }
 }
