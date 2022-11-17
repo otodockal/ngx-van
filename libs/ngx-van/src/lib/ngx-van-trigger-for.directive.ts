@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/no-host-metadata-property */
 import { Directive, ElementRef, inject, Input } from '@angular/core';
 import { NgxVanComponent } from './ngx-van.component';
 

@@ -1,5 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
-/* eslint-disable @angular-eslint/no-host-metadata-property */
 import { Component } from '@angular/core';
 
 @Component({
@@ -8,6 +6,8 @@ import { Component } from '@angular/core';
     host: {
         class: 'material-icons',
     },
-    template: `<ng-content></ng-content>`,
+    template: `
+        <ng-content></ng-content>
+    `,
 })
 export class IconComponent {}
