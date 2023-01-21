@@ -5,9 +5,6 @@
             {{ van.isOpen ? 'close' : 'menu_open' }}
         </app-icon>
     </button>
-
-    <h1 *ngIf="van.menu === 'mobile'">ngx-van</h1>
-
     <ngx-van [breakpoint]="700" [side]="'end'" #van>
         <ul>
             <li>
