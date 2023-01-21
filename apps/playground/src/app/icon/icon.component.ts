@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'app-icon',
     standalone: true,
+    selector: 'app-icon',
     host: {
         class: 'material-icons',
     },

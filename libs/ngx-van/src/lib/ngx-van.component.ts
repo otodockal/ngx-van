@@ -1,6 +1,9 @@
 import { AnimationEvent } from '@angular/animations';
+import { A11yModule } from '@angular/cdk/a11y';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { Platform } from '@angular/cdk/platform';
-import { TemplatePortal } from '@angular/cdk/portal';
+import { PortalModule, TemplatePortal } from '@angular/cdk/portal';
+import { AsyncPipe, NgIf } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -18,6 +21,7 @@ import { ngxVanAnimations } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
 
 @Component({
+    standalone: true,
     selector: 'ngx-van',
     exportAs: 'ngxVan',
     animations: [ngxVanAnimations],
@@ -40,6 +44,7 @@ import { NgxVanService } from './ngx-van.service';
         </div>
     `,
     providers: [NgxVanService],
+    imports: [NgIf, AsyncPipe, A11yModule, PortalModule, OverlayModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxVanComponent implements OnInit, AfterViewInit {
@@ -56,6 +61,11 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
 
     protected readonly _events$ = this._ngxVanService.events$;
     protected _navContainerPortal: TemplatePortal<any> | null = null;
+
+    /**
+     * Void (initial) style for mobile menu (and mobile animations)
+     * - needs to be set dynamically, so declared in component scope
+     */
     protected get _voidMobileStyle() {
         if (this.menu === 'mobile') {
             return this.side === 'end'

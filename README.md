@@ -26,12 +26,7 @@ yarn add ngx-van
 ## TS
 
 ```ts
-// with or without animations
-import {
-    BrowserAnimationsModule, // ✅
-    NoopAnimationsModule, // ❎
-} from '@angular/platform-browser/animations';
-import { NgxVanModule } from 'ngx-van';
+import { NgxVan } from 'ngx-van';
 ```
 
 ## HTML
