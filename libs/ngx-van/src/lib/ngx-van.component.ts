@@ -34,7 +34,7 @@ import { NgxVanService } from './ngx-van.service';
         <ng-template #navContainer>
             <nav
                 [style]="_voidMobileStyle"
-                [@nav]="_events$ | async"
+                [@nav]="_navStates$ | async"
                 (@nav.done)="_closeMobileMenuOnAnimationDone($event)"
                 [cdkTrapFocus]="isOpen"
             >
@@ -62,7 +62,7 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
     @ViewChild('navContainer')
     private readonly _navContainerTpl: TemplateRef<HTMLElement> | null = null;
 
-    protected readonly _events$ = this._ngxVanService.events$;
+    protected readonly _navStates$ = this._ngxVanService.navStates$;
     protected _navContainerPortal: TemplatePortal<any> | null = null;
 
     /**

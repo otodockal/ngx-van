@@ -1,19 +1,19 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectorRef, inject, Injectable, NgZone, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import {
     BehaviorSubject,
+    EMPTY,
+    Subject,
     catchError,
     combineLatest,
     distinctUntilChanged,
-    EMPTY,
     filter,
     first,
     fromEvent,
     map,
     merge,
     startWith,
-    Subject,
     takeUntil,
 } from 'rxjs';
 
@@ -26,14 +26,17 @@ export class NgxVanService implements OnDestroy {
     private _overlayRef: OverlayRef | null = null;
     private _triggerEl: HTMLElement | null = null;
 
-    readonly onDestroy$ = new Subject<void>();
-    readonly events$ = new Subject<'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null>();
+    readonly navStates$ = new BehaviorSubject<
+        'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
+    >(null);
     readonly menu$ = new BehaviorSubject<'mobile' | 'desktop' | null>(null);
     readonly isOpen$ = new BehaviorSubject(false);
     readonly vm$ = combineLatest({
         isOpen: this.isOpen$,
         menu: this.menu$,
     });
+
+    readonly onDestroy$ = new Subject<void>();
 
     /**
      * Open nav overlay element
@@ -94,7 +97,7 @@ export class NgxVanService implements OnDestroy {
      * Close nav overlay element with respect to animation
      */
     scheduleClose(type: 'start' | 'end') {
-        this.events$.next(type === 'start' ? 'closeLeft' : 'closeRight');
+        this.navStates$.next(type === 'start' ? 'closeLeft' : 'closeRight');
     }
 
     /**
@@ -115,7 +118,7 @@ export class NgxVanService implements OnDestroy {
                             this.menu$.next(menuType);
                             // clear animation state
                             if (menuType === 'desktop') {
-                                this.events$.next(null);
+                                this.navStates$.next(null);
                                 this.close();
                             }
                             this._cd.markForCheck();
@@ -138,7 +141,7 @@ export class NgxVanService implements OnDestroy {
     private _waitForCloseEvents(overlayRef: OverlayRef, type: 'start' | 'end') {
         // notify UI
         this.isOpen$.next(true);
-        this.events$.next(type === 'end' ? 'openLeft' : 'openRight');
+        this.navStates$.next(type === 'end' ? 'openLeft' : 'openRight');
 
         merge(
             // Esc click
