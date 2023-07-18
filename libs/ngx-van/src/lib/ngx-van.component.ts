@@ -24,6 +24,9 @@ import { NgxVanService } from './ngx-van.service';
     standalone: true,
     selector: 'ngx-van',
     exportAs: 'ngxVan',
+    host: {
+        ngSkipHydration: '',
+    },
     animations: [ngxVanAnimations],
     template: `
         <!-- MOBILE: lazy, instatiate on demand using toggleMobileMenu() -->
