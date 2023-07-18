@@ -1,6 +1,6 @@
 {
   "name": "ngx-van",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "<ngx-van>: The Navigation Section element with built-in Mobile Superpowers",
   "peerDependencies": {
     "@angular/common": "^15.1.1",
