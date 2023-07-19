@@ -37,13 +37,13 @@ import { NgxVanService } from './ngx-van.service';
                 [style]="_voidMobileStyle"
                 [@nav]="_navStates$ | async"
                 (@nav.done)="_closeMobileMenuOnAnimationDone($event)"
-                [cdkTrapFocus]="isOpen"
+                [cdkTrapFocus]="vm.isOpen"
             >
                 <ng-content></ng-content>
             </nav>
         </ng-template>
         <!-- DESKTOP -->
-        <div class="ngx-van-ssr" *ngIf="menu === 'desktop'" [@.disabled]="true">
+        <div class="ngx-van-ssr" *ngIf="vm.menu === 'desktop'" [@.disabled]="true">
             <ng-template [cdkPortalOutlet]="_navContainerPortal"></ng-template>
         </div>
     `,
@@ -74,7 +74,7 @@ export class NgxVan implements OnInit, AfterViewInit {
      * - needs to be set dynamically, so declared in component scope
      */
     protected get _voidMobileStyle() {
-        if (this.menu === 'mobile') {
+        if (this.vm.menu === 'mobile') {
             return this.side === 'end'
                 ? 'position: fixed; right: 0; transform: translateX(100%)'
                 : 'position: fixed; left: 0; transform: translateX(-100%)';
@@ -82,8 +82,13 @@ export class NgxVan implements OnInit, AfterViewInit {
         return null;
     }
 
-    isOpen = false;
-    menu: 'mobile' | 'desktop' | null = !this._isBrowser ? 'desktop' : null;
+    /**
+     * Vm properties accessible in templates
+     */
+    vm: { isOpen: boolean; menu: 'mobile' | 'desktop' | null } = {
+        isOpen: false,
+        menu: !this._isBrowser ? 'desktop' : null,
+    };
 
     ngOnInit() {
         if (this._isBrowser) {
@@ -91,8 +96,10 @@ export class NgxVan implements OnInit, AfterViewInit {
             this._ngxVanService.vm$
                 .pipe(takeUntilDestroyed(this._destroyRef))
                 .subscribe(({ isOpen, menu }) => {
-                    this.isOpen = isOpen;
-                    this.menu = menu;
+                    this.vm = {
+                        isOpen,
+                        menu,
+                    };
                     this._cd.markForCheck();
                 });
         }
