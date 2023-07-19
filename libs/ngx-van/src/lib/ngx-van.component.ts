@@ -50,7 +50,7 @@ import { NgxVanService } from './ngx-van.service';
     imports: [NgIf, AsyncPipe, A11yModule, PortalModule, OverlayModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgxVanComponent implements OnInit, AfterViewInit {
+export class NgxVan implements OnInit, AfterViewInit {
     private readonly _ngxVanService = inject(NgxVanService);
     private readonly _viewContainer = inject(ViewContainerRef);
     private readonly _isBrowser = inject(Platform).isBrowser;
@@ -58,6 +58,8 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
 
     @Input() side: 'start' | 'end' = 'end';
     @Input() breakpoint: number | null = 991;
+    @Input() closeOnEscapeKeyClick: 'close' | 'dispose' | false = 'close';
+    @Input() closeOnBackdropClick: 'close' | 'dispose' | false = 'close';
 
     @ViewChild('navContainer')
     private readonly _navContainerTpl: TemplateRef<HTMLElement> | null = null;
@@ -116,6 +118,8 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
                 this._navContainerTpl!.elementRef.nativeElement,
                 this._navContainerPortal!,
                 this.side,
+                this.closeOnEscapeKeyClick,
+                this.closeOnBackdropClick
             );
         }
     }
@@ -124,19 +128,19 @@ export class NgxVanComponent implements OnInit, AfterViewInit {
      * Close mobile menu with respect to animation
      */
     closeMobileMenu() {
-        this._ngxVanService.scheduleClose(this.side);
+        this._ngxVanService.close(this.side);
     }
 
     /**
      * Close mobile menu without animation
      */
-    closeMobileMenuNow() {
-        this._ngxVanService.close();
+    disposeMobileMenu() {
+        this._ngxVanService.dispose();
     }
 
     protected _closeMobileMenuOnAnimationDone(e: AnimationEvent) {
         if (e.toState === 'closeLeft' || e.toState === 'closeRight') {
-            this.closeMobileMenuNow();
+            this.disposeMobileMenu();
         }
     }
 }

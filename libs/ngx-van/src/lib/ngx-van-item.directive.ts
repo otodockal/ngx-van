@@ -1,5 +1,5 @@
-import { Directive, inject } from '@angular/core';
-import { NgxVanComponent } from './ngx-van.component';
+import { Directive, Input, inject } from '@angular/core';
+import { NgxVan } from './ngx-van.component';
 
 @Directive({
     standalone: true,
@@ -8,10 +8,21 @@ import { NgxVanComponent } from './ngx-van.component';
         '(click)': 'close()',
     },
 })
-export class NgxVanItemDirective {
-    private readonly _ngxVaComponent = inject(NgxVanComponent);
+export class NgxVanItem {
+    private readonly _ngxVaComponent = inject(NgxVan);
+
+    @Input('ngx-van-item') ngxVanItem: 'dispose' | 'close' | '' = 'dispose';
 
     protected close() {
-        this._ngxVaComponent.closeMobileMenuNow();
+        /**
+         * allow only on mobile
+         */
+        if (this._ngxVaComponent.menu === 'mobile') {
+            if (this.ngxVanItem === 'close' || this.ngxVanItem === '') {
+                this._ngxVaComponent.closeMobileMenu();
+            } else {
+                this._ngxVaComponent.disposeMobileMenu();
+            }
+        }
     }
 }

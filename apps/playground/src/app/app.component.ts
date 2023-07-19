@@ -1,7 +1,8 @@
 import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { NgxVan } from 'ngx-van';
+import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
 import { IconComponent } from './icon/icon.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
     standalone: true,
@@ -11,6 +12,6 @@ import { IconComponent } from './icon/icon.component';
     host: {
         class: 'layout',
     },
-    imports: [NgIf, NgxVan, IconComponent],
+    imports: [NgIf, IconComponent, RouterModule, NgxVan, NgxVanItem, NgxVanTriggerFor],
 })
 export class AppComponent {}

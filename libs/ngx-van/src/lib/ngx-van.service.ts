@@ -3,16 +3,13 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import {
     BehaviorSubject,
-    EMPTY,
     Subject,
-    catchError,
     combineLatest,
     distinctUntilChanged,
-    filter,
     first,
     fromEvent,
     map,
-    merge,
+    race,
     startWith,
     takeUntil,
 } from 'rxjs';
@@ -26,9 +23,9 @@ export class NgxVanService implements OnDestroy {
     private _overlayRef: OverlayRef | null = null;
     private _triggerEl: HTMLElement | null = null;
 
-    readonly navStates$ = new BehaviorSubject<
+    readonly navStates$ = new Subject<
         'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
-    >(null);
+    >();
     readonly menu$ = new BehaviorSubject<'mobile' | 'desktop' | null>(null);
     readonly isOpen$ = new BehaviorSubject(false);
     readonly vm$ = combineLatest({
@@ -46,6 +43,8 @@ export class NgxVanService implements OnDestroy {
         target: Element,
         navContainerPortal: TemplatePortal<any>,
         type: 'start' | 'end',
+        closeOnEscapeKeyClick: 'close' | 'dispose' | false,
+        closeOnBackdropClick: 'close' | 'dispose' | false,
     ) {
         this._triggerEl = triggerEl;
         const positionStrategy = this._overlay
@@ -74,7 +73,12 @@ export class NgxVanService implements OnDestroy {
         this._overlayRef.attach(navContainerPortal);
 
         // bind closing events
-        this._waitForCloseEvents(this._overlayRef, type);
+        this._waitForCloseEvents(
+            this._overlayRef,
+            type,
+            closeOnEscapeKeyClick,
+            closeOnBackdropClick,
+        );
         // focus first focusable el
         this._focusFirstFocusableElement(this._overlayRef);
 
@@ -84,7 +88,7 @@ export class NgxVanService implements OnDestroy {
     /**
      * Close nav overlay element without animation
      */
-    close() {
+    dispose() {
         if (this._overlayRef) {
             this._overlayRef.dispose();
             this._overlayRef = null;
@@ -96,8 +100,8 @@ export class NgxVanService implements OnDestroy {
     /**
      * Close nav overlay element with respect to animation
      */
-    scheduleClose(type: 'start' | 'end') {
-        this.navStates$.next(type === 'start' ? 'closeLeft' : 'closeRight');
+    close(side: 'start' | 'end') {
+        this.navStates$.next(this._getNavCloseState(side));
     }
 
     /**
@@ -119,7 +123,7 @@ export class NgxVanService implements OnDestroy {
                             // clear animation state
                             if (menuType === 'desktop') {
                                 this.navStates$.next(null);
-                                this.close();
+                                this.dispose();
                             }
                             this._cd.markForCheck();
                         });
@@ -138,25 +142,54 @@ export class NgxVanService implements OnDestroy {
     /**
      * Schedule close on Esc click, Backdrop click
      */
-    private _waitForCloseEvents(overlayRef: OverlayRef, type: 'start' | 'end') {
+    private _waitForCloseEvents(
+        overlayRef: OverlayRef,
+        side: 'start' | 'end',
+        closeOnEscapeKeyClick: 'close' | 'dispose' | false,
+        closeOnBackdropClick: 'close' | 'dispose' | false,
+    ) {
         // notify UI
         this.isOpen$.next(true);
-        this.navStates$.next(type === 'end' ? 'openLeft' : 'openRight');
+        this.navStates$.next(this._getNavOpenState(side));
 
-        merge(
-            // Esc click
-            overlayRef.keydownEvents().pipe(filter((e) => e.code.toLowerCase() === 'escape')),
-            // Backdrop click
-            overlayRef.backdropClick(),
-        )
-            .pipe(
-                first(),
-                catchError(() => EMPTY),
-            )
-            .subscribe((_) => {
-                this.scheduleClose(type);
-                this._cd.markForCheck();
-            });
+        const raceEvents = [];
+
+        // Esc click
+        if (closeOnEscapeKeyClick !== false) {
+            raceEvents.push(
+                overlayRef.keydownEvents().pipe(
+                    first((e) => e.code.toLowerCase() === 'escape'),
+                    map(() => 'ESC_KEY_CLICK' as const),
+                ),
+            );
+        }
+
+        // Backdrop click
+        if (closeOnBackdropClick !== false) {
+            raceEvents.push(
+                overlayRef.backdropClick().pipe(
+                    first(),
+                    map(() => 'BACKDROP_CLICK' as const),
+                ),
+            );
+        }
+
+        race(raceEvents).subscribe((e) => {
+            if (e === 'ESC_KEY_CLICK') {
+                if (closeOnEscapeKeyClick === 'close') {
+                    this.close(side);
+                } else if (closeOnEscapeKeyClick === 'dispose') {
+                    this.dispose();
+                }
+            } else if (e === 'BACKDROP_CLICK') {
+                if (closeOnBackdropClick === 'close') {
+                    this.close(side);
+                } else if (closeOnBackdropClick === 'dispose') {
+                    this.dispose();
+                }
+            }
+            this._cd.markForCheck();
+        });
 
         // null overalyRef on every time is an element detached
         overlayRef
@@ -184,5 +217,19 @@ export class NgxVanService implements OnDestroy {
      */
     private _getMenuType(breakPointSize: number) {
         return window.innerWidth <= breakPointSize ? 'mobile' : 'desktop';
+    }
+
+    /**
+     * Get animation close state based on side type
+     */
+    private _getNavCloseState(side: 'start' | 'end') {
+        return side === 'start' ? 'closeLeft' : 'closeRight';
+    }
+
+    /**
+     * Get animation open state based on side type
+     */
+    private _getNavOpenState(side: 'start' | 'end') {
+        return side === 'end' ? 'openLeft' : 'openRight';
     }
 }
