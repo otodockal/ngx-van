@@ -1,6 +1,7 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectorRef, Injectable, NgZone, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     BehaviorSubject,
     Subject,
@@ -11,13 +12,13 @@ import {
     map,
     race,
     startWith,
-    takeUntil,
 } from 'rxjs';
 
 @Injectable()
-export class NgxVanService implements OnDestroy {
+export class NgxVanService {
     private readonly _cd = inject(ChangeDetectorRef);
     private readonly _overlay = inject(Overlay);
+    private readonly _destroyRef = inject(DestroyRef);
     private readonly _ngZone = inject(NgZone);
 
     private _overlayRef: OverlayRef | null = null;
@@ -32,8 +33,6 @@ export class NgxVanService implements OnDestroy {
         isOpen: this.isOpen$,
         menu: this.menu$,
     });
-
-    readonly onDestroy$ = new Subject<void>();
 
     /**
      * Open nav overlay element
@@ -115,7 +114,7 @@ export class NgxVanService implements OnDestroy {
                         startWith(this._getMenuType(breakpoint)),
                         map(() => this._getMenuType(breakpoint)),
                         distinctUntilChanged(),
-                        takeUntil(this.onDestroy$),
+                        takeUntilDestroyed(this._destroyRef),
                     )
                     .subscribe((menuType) => {
                         this._ngZone.run(() => {
@@ -133,10 +132,6 @@ export class NgxVanService implements OnDestroy {
             this.menu$.next('desktop');
             this._cd.markForCheck();
         }
-    }
-
-    ngOnDestroy() {
-        this.onDestroy$.next();
     }
 
     /**

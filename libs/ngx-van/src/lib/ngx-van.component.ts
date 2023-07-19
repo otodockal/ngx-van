@@ -9,14 +9,15 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    inject,
+    DestroyRef,
     Input,
     OnInit,
     TemplateRef,
     ViewChild,
     ViewContainerRef,
+    inject,
 } from '@angular/core';
-import { takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ngxVanAnimations } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
 
@@ -55,6 +56,7 @@ export class NgxVan implements OnInit, AfterViewInit {
     private readonly _viewContainer = inject(ViewContainerRef);
     private readonly _isBrowser = inject(Platform).isBrowser;
     private readonly _cd = inject(ChangeDetectorRef);
+    private readonly _destroyRef = inject(DestroyRef);
 
     @Input() side: 'start' | 'end' = 'end';
     @Input() breakpoint: number | null = 991;
@@ -87,7 +89,7 @@ export class NgxVan implements OnInit, AfterViewInit {
         if (this._isBrowser) {
             this._ngxVanService.waitForDesktopAndClose(this.breakpoint);
             this._ngxVanService.vm$
-                .pipe(takeUntil(this._ngxVanService.onDestroy$))
+                .pipe(takeUntilDestroyed(this._destroyRef))
                 .subscribe(({ isOpen, menu }) => {
                     this.isOpen = isOpen;
                     this.menu = menu;
@@ -119,7 +121,7 @@ export class NgxVan implements OnInit, AfterViewInit {
                 this._navContainerPortal!,
                 this.side,
                 this.closeOnEscapeKeyClick,
-                this.closeOnBackdropClick
+                this.closeOnBackdropClick,
             );
         }
     }
