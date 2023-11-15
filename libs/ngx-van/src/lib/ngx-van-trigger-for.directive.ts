@@ -1,4 +1,4 @@
-import { Directive, ElementRef, inject, Input } from '@angular/core';
+import { computed, Directive, ElementRef, inject, Input } from '@angular/core';
 import { NgxVan } from './ngx-van.component';
 
 @Directive({
@@ -6,7 +6,7 @@ import { NgxVan } from './ngx-van.component';
     selector: '[ngxVanTriggerFor]',
     host: {
         '(click)': '_toggleMobileMenu()',
-        '[style.display]': '!_isVisibleByDevice && !visible ? "none" : null',
+        '[style.display]': '!_isVisibleByDevice() && !visible ? "none" : null',
     },
 })
 export class NgxVanTriggerFor {
@@ -15,9 +15,7 @@ export class NgxVanTriggerFor {
     @Input() ngxVanTriggerFor: NgxVan | null = null;
     @Input() visible = false;
 
-    protected get _isVisibleByDevice() {
-        return this.ngxVanTriggerFor?.vm.menu === 'mobile';
-    }
+    protected _isVisibleByDevice = computed(() => this.ngxVanTriggerFor?.vm().menu === 'mobile');
 
     protected _toggleMobileMenu() {
         this.ngxVanTriggerFor?.toggleMobileMenu(this._el);

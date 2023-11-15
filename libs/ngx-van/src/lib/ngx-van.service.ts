@@ -1,18 +1,17 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-    BehaviorSubject,
-    Subject,
-    combineLatest,
-    distinctUntilChanged,
-    first,
-    fromEvent,
-    map,
-    race,
-    startWith,
-} from 'rxjs';
+    ChangeDetectorRef,
+    DestroyRef,
+    Injectable,
+    NgZone,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, distinctUntilChanged, first, fromEvent, map, race, startWith } from 'rxjs';
 
 @Injectable()
 export class NgxVanService {
@@ -20,6 +19,7 @@ export class NgxVanService {
     private readonly _overlay = inject(Overlay);
     private readonly _destroyRef = inject(DestroyRef);
     private readonly _ngZone = inject(NgZone);
+    private readonly _isBrowser = inject(Platform).isBrowser;
 
     private _overlayRef: OverlayRef | null = null;
     private _triggerEl: HTMLElement | null = null;
@@ -27,12 +27,13 @@ export class NgxVanService {
     readonly navStates$ = new Subject<
         'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
     >();
-    readonly menu$ = new BehaviorSubject<'mobile' | 'desktop' | null>(null);
-    readonly isOpen$ = new BehaviorSubject(false);
-    readonly vm$ = combineLatest({
-        isOpen: this.isOpen$,
-        menu: this.menu$,
-    });
+
+    readonly menu = signal<'mobile' | 'desktop' | null>(null);
+    readonly isOpen = signal(false);
+    readonly vm = computed(() => ({
+        isOpen: this.isOpen(),
+        menu: !this._isBrowser ? 'desktop' : this.menu(),
+    }));
 
     /**
      * Open nav overlay element
@@ -118,7 +119,7 @@ export class NgxVanService {
                     )
                     .subscribe((menuType) => {
                         this._ngZone.run(() => {
-                            this.menu$.next(menuType);
+                            this.menu.set(menuType);
                             // clear animation state
                             if (menuType === 'desktop') {
                                 this.navStates$.next(null);
@@ -129,7 +130,7 @@ export class NgxVanService {
                     });
             });
         } else {
-            this.menu$.next('desktop');
+            this.menu.set('desktop');
             this._cd.markForCheck();
         }
     }
@@ -144,7 +145,7 @@ export class NgxVanService {
         closeOnBackdropClick: 'close' | 'dispose' | false,
     ) {
         // notify UI
-        this.isOpen$.next(true);
+        this.isOpen.set(true);
         this.navStates$.next(this._getNavOpenState(side));
 
         const raceEvents = [];
@@ -191,7 +192,7 @@ export class NgxVanService {
             .detachments()
             .pipe(first())
             .subscribe(() => {
-                this.isOpen$.next(false);
+                this.isOpen.set(false);
                 this._overlayRef = null;
                 this._cd.markForCheck();
             });

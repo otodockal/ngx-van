@@ -2,7 +2,7 @@
 <header>
     <button [ngxVanTriggerFor]="van">
         <app-icon>
-            {{ van.vm.isOpen ? 'close' : 'menu_open' }}
+            {{ van.vm().isOpen ? 'close' : 'menu_open' }}
         </app-icon>
     </button>
     <ngx-van
@@ -15,31 +15,41 @@
         <ul>
             <li>
                 <a ngx-van-item="dispose" routerLink="/">
-                    <app-icon *ngIf="van.vm.menu === 'desktop'">inbox</app-icon>
+                    @if (van.vm().menu === 'desktop') {
+                        <app-icon>inbox</app-icon>
+                    }
                     Inbox
                 </a>
             </li>
             <li>
                 <a ngx-van-item routerLink="/starred">
-                    <app-icon *ngIf="van.vm.menu === 'desktop'">star</app-icon>
+                    @if (van.vm().menu === 'desktop') {
+                        <app-icon>star</app-icon>
+                    }
                     Starred
                 </a>
             </li>
             <li>
                 <a ngx-van-item="close" routerLink="/important">
-                    <app-icon *ngIf="van.vm.menu === 'desktop'">label_important</app-icon>
+                    @if (van.vm().menu === 'desktop') {
+                        <app-icon>label_important</app-icon>
+                    }
                     Important
                 </a>
             </li>
             <li>
                 <a ngx-van-item routerLink="/drafts">
-                    <app-icon *ngIf="van.vm.menu === 'desktop'">drafts</app-icon>
+                    @if (van.vm().menu === 'desktop') {
+                        <app-icon>drafts</app-icon>
+                    }
                     Drafts
                 </a>
             </li>
             <li>
                 <a ngx-van-item routerLink="/deleted">
-                    <app-icon *ngIf="van.vm.menu === 'desktop'">delete</app-icon>
+                    @if (van.vm().menu === 'desktop') {
+                        <app-icon>delete</app-icon>
+                    }
                     Deleted
                 </a>
             </li>
