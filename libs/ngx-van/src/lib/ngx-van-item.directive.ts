@@ -9,7 +9,7 @@ import { NgxVan } from './ngx-van.component';
     },
 })
 export class NgxVanItem {
-    private readonly _ngxVaComponent = inject(NgxVan);
+    private readonly ngxVaComponent = inject(NgxVan);
 
     ngxVanItem = input<'dispose' | 'close' | ''>('dispose', { alias: 'ngx-van-item' });
 
@@ -17,11 +17,11 @@ export class NgxVanItem {
         /**
          * allow only on mobile
          */
-        if (this._ngxVaComponent.vm().menu === 'mobile') {
+        if (this.ngxVaComponent.vm().menu === 'mobile') {
             if (this.ngxVanItem() === 'close' || this.ngxVanItem() === '') {
-                this._ngxVaComponent.closeMobileMenu();
+                this.ngxVaComponent.closeMobileMenu();
             } else {
-                this._ngxVaComponent.disposeMobileMenu();
+                this.ngxVaComponent.disposeMobileMenu();
             }
         }
     }

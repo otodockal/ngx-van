@@ -5,6 +5,7 @@ import { Platform } from '@angular/cdk/platform';
 import { PortalModule, TemplatePortal } from '@angular/cdk/portal';
 import { AsyncPipe } from '@angular/common';
 import {
+    AfterRenderPhase,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -34,9 +35,9 @@ import { NgxVanService } from './ngx-van.service';
         <!-- DESKTOP: content for desktop -->
         <ng-template #navContainer>
             <nav
-                [style]="_voidMobileStyle()"
-                [@nav]="_navStates$ | async"
-                (@nav.done)="_closeMobileMenuOnAnimationDone($event)"
+                [style]="voidMobileStyle()"
+                [@nav]="navStates$ | async"
+                (@nav.done)="closeMobileMenuOnAnimationDone($event)"
                 [cdkTrapFocus]="vm().isOpen"
             >
                 <ng-content></ng-content>
@@ -45,7 +46,7 @@ import { NgxVanService } from './ngx-van.service';
         <!-- DESKTOP -->
         @if (vm().menu === 'desktop') {
             <div class="ngx-van-ssr" [@.disabled]="true">
-                <ng-template [cdkPortalOutlet]="_navContainerPortal"></ng-template>
+                <ng-template [cdkPortalOutlet]="navContainerPortal"></ng-template>
             </div>
         }
     `,
@@ -54,10 +55,10 @@ import { NgxVanService } from './ngx-van.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxVan implements OnInit {
-    private readonly _ngxVanService = inject(NgxVanService);
-    private readonly _viewContainer = inject(ViewContainerRef);
-    private readonly _isBrowser = inject(Platform).isBrowser;
-    private readonly _cd = inject(ChangeDetectorRef);
+    private readonly ngxVanService = inject(NgxVanService);
+    private readonly viewContainer = inject(ViewContainerRef);
+    private readonly isBrowser = inject(Platform).isBrowser;
+    private readonly cd = inject(ChangeDetectorRef);
 
     side = input<'start' | 'end'>('end');
     breakpoint = input<number | null>(991);
@@ -68,7 +69,7 @@ export class NgxVan implements OnInit {
      * Void (initial) style for mobile menu (and mobile animations)
      * - needs to be set dynamically, so declared in component scope
      */
-    protected _voidMobileStyle = computed(() => {
+    protected voidMobileStyle = computed(() => {
         if (this.vm().menu === 'mobile') {
             return untracked(this.side) === 'end'
                 ? 'position: fixed; right: 0; transform: translateX(100%)'
@@ -77,31 +78,35 @@ export class NgxVan implements OnInit {
         return null;
     });
 
+    // TODO: use viewChild() once it's shipped
     @ViewChild('navContainer')
-    private readonly _navContainerTpl: TemplateRef<HTMLElement> | null = null;
+    private readonly navContainerTpl: TemplateRef<HTMLElement> | null = null;
 
-    protected readonly _navStates$ = this._ngxVanService.navStates$;
+    protected readonly navStates$ = this.ngxVanService.navStates$;
 
-    protected _navContainerPortal: TemplatePortal<any> | null = null;
+    protected navContainerPortal: TemplatePortal<any> | null = null;
 
     /**
      * Vm properties accessible in templates
      */
-    vm = this._ngxVanService.vm;
+    vm = this.ngxVanService.vm;
 
     constructor() {
-        afterNextRender(() => {
-            this._navContainerPortal = new TemplatePortal(
-                this._navContainerTpl!,
-                this._viewContainer,
-            );
-            this._cd.markForCheck();
-        });
+        afterNextRender(
+            () => {
+                this.navContainerPortal = new TemplatePortal(
+                    this.navContainerTpl!,
+                    this.viewContainer,
+                );
+                this.cd.markForCheck();
+            },
+            { phase: AfterRenderPhase.Write },
+        );
     }
 
     ngOnInit() {
-        if (this._isBrowser) {
-            this._ngxVanService.waitForDesktopAndClose(this.breakpoint());
+        if (this.isBrowser) {
+            this.ngxVanService.waitForDesktopAndClose(this.breakpoint());
         }
     }
 
@@ -109,13 +114,13 @@ export class NgxVan implements OnInit {
      * Toggle mobile menu
      */
     toggleMobileMenu(triggerEl: HTMLElement) {
-        if (this._ngxVanService.isOpen()) {
+        if (this.ngxVanService.isOpen()) {
             this.closeMobileMenu();
         } else {
-            this._ngxVanService.open(
+            this.ngxVanService.open(
                 triggerEl,
-                this._navContainerTpl!.elementRef.nativeElement,
-                this._navContainerPortal!,
+                this.navContainerTpl!.elementRef.nativeElement,
+                this.navContainerPortal!,
                 this.side(),
                 this.closeOnEscapeKeyClick(),
                 this.closeOnBackdropClick(),
@@ -127,17 +132,17 @@ export class NgxVan implements OnInit {
      * Close mobile menu with respect to animation
      */
     closeMobileMenu() {
-        this._ngxVanService.close(this.side());
+        this.ngxVanService.close(this.side());
     }
 
     /**
      * Close mobile menu without animation
      */
     disposeMobileMenu() {
-        this._ngxVanService.dispose();
+        this.ngxVanService.dispose();
     }
 
-    protected _closeMobileMenuOnAnimationDone(e: AnimationEvent) {
+    protected closeMobileMenuOnAnimationDone(e: AnimationEvent) {
         if (e.toState === 'closeLeft' || e.toState === 'closeRight') {
             this.disposeMobileMenu();
         }

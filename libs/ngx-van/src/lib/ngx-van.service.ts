@@ -15,14 +15,14 @@ import { Subject, distinctUntilChanged, first, fromEvent, map, race, startWith }
 
 @Injectable()
 export class NgxVanService {
-    private readonly _cd = inject(ChangeDetectorRef);
-    private readonly _overlay = inject(Overlay);
-    private readonly _destroyRef = inject(DestroyRef);
-    private readonly _ngZone = inject(NgZone);
-    private readonly _isBrowser = inject(Platform).isBrowser;
+    private readonly cd = inject(ChangeDetectorRef);
+    private readonly overlay = inject(Overlay);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly ngZone = inject(NgZone);
+    private readonly isBrowser = inject(Platform).isBrowser;
 
-    private _overlayRef: OverlayRef | null = null;
-    private _triggerEl: HTMLElement | null = null;
+    private overlayRef: OverlayRef | null = null;
+    private triggerEl: HTMLElement | null = null;
 
     readonly navStates$ = new Subject<
         'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
@@ -32,7 +32,7 @@ export class NgxVanService {
     readonly isOpen = signal(false);
     readonly vm = computed(() => ({
         isOpen: this.isOpen(),
-        menu: !this._isBrowser ? 'desktop' : this.menu(),
+        menu: !this.isBrowser ? 'desktop' : this.menu(),
     }));
 
     /**
@@ -46,8 +46,8 @@ export class NgxVanService {
         closeOnEscapeKeyClick: 'close' | 'dispose' | false,
         closeOnBackdropClick: 'close' | 'dispose' | false,
     ) {
-        this._triggerEl = triggerEl;
-        const positionStrategy = this._overlay
+        this.triggerEl = triggerEl;
+        const positionStrategy = this.overlay
             .position()
             .flexibleConnectedTo(target)
             .withPositions([
@@ -62,38 +62,33 @@ export class NgxVanService {
             .withFlexibleDimensions(false);
 
         // create nav overlay
-        this._overlayRef = this._overlay.create({
+        this.overlayRef = this.overlay.create({
             hasBackdrop: true,
             backdropClass: 'ngx-van-mobile-backdrop',
             panelClass: 'ngx-van-mobile',
             positionStrategy,
-            scrollStrategy: this._overlay.scrollStrategies.block(),
+            scrollStrategy: this.overlay.scrollStrategies.block(),
             disposeOnNavigation: true,
         });
-        this._overlayRef.attach(navContainerPortal);
+        this.overlayRef.attach(navContainerPortal);
 
         // bind closing events
-        this._waitForCloseEvents(
-            this._overlayRef,
-            type,
-            closeOnEscapeKeyClick,
-            closeOnBackdropClick,
-        );
+        this.waitForCloseEvents(this.overlayRef, type, closeOnEscapeKeyClick, closeOnBackdropClick);
         // focus first focusable el
-        this._focusFirstFocusableElement(this._overlayRef);
+        this.focusFirstFocusableElement(this.overlayRef);
 
-        return this._overlayRef;
+        return this.overlayRef;
     }
 
     /**
      * Close nav overlay element without animation
      */
     dispose() {
-        if (this._overlayRef) {
-            this._overlayRef.dispose();
-            this._overlayRef = null;
-            this._triggerEl?.focus();
-            this._triggerEl = null;
+        if (this.overlayRef) {
+            this.overlayRef.dispose();
+            this.overlayRef = null;
+            this.triggerEl?.focus();
+            this.triggerEl = null;
         }
     }
 
@@ -101,7 +96,7 @@ export class NgxVanService {
      * Close nav overlay element with respect to animation
      */
     close(side: 'start' | 'end') {
-        this.navStates$.next(this._getNavCloseState(side));
+        this.navStates$.next(this.getNavCloseState(side));
     }
 
     /**
@@ -109,36 +104,36 @@ export class NgxVanService {
      */
     waitForDesktopAndClose(breakpoint: number | null) {
         if (breakpoint !== null) {
-            this._ngZone.runOutsideAngular(() => {
+            this.ngZone.runOutsideAngular(() => {
                 fromEvent(window, 'resize')
                     .pipe(
-                        startWith(this._getMenuType(breakpoint)),
-                        map(() => this._getMenuType(breakpoint)),
+                        startWith(this.getMenuType(breakpoint)),
+                        map(() => this.getMenuType(breakpoint)),
                         distinctUntilChanged(),
-                        takeUntilDestroyed(this._destroyRef),
+                        takeUntilDestroyed(this.destroyRef),
                     )
                     .subscribe((menuType) => {
-                        this._ngZone.run(() => {
+                        this.ngZone.run(() => {
                             this.menu.set(menuType);
                             // clear animation state
                             if (menuType === 'desktop') {
                                 this.navStates$.next(null);
                                 this.dispose();
                             }
-                            this._cd.markForCheck();
+                            this.cd.markForCheck();
                         });
                     });
             });
         } else {
             this.menu.set('desktop');
-            this._cd.markForCheck();
+            this.cd.markForCheck();
         }
     }
 
     /**
      * Schedule close on Esc click, Backdrop click
      */
-    private _waitForCloseEvents(
+    private waitForCloseEvents(
         overlayRef: OverlayRef,
         side: 'start' | 'end',
         closeOnEscapeKeyClick: 'close' | 'dispose' | false,
@@ -146,7 +141,7 @@ export class NgxVanService {
     ) {
         // notify UI
         this.isOpen.set(true);
-        this.navStates$.next(this._getNavOpenState(side));
+        this.navStates$.next(this.getNavOpenState(side));
 
         const raceEvents = [];
 
@@ -184,7 +179,7 @@ export class NgxVanService {
                     this.dispose();
                 }
             }
-            this._cd.markForCheck();
+            this.cd.markForCheck();
         });
 
         // null overalyRef on every time is an element detached
@@ -193,15 +188,15 @@ export class NgxVanService {
             .pipe(first())
             .subscribe(() => {
                 this.isOpen.set(false);
-                this._overlayRef = null;
-                this._cd.markForCheck();
+                this.overlayRef = null;
+                this.cd.markForCheck();
             });
     }
 
     /**
      * Focus first anchor element on overlay open
      */
-    private _focusFirstFocusableElement(overlayRef: OverlayRef) {
+    private focusFirstFocusableElement(overlayRef: OverlayRef) {
         const focusable = overlayRef.hostElement.querySelector('a');
         if (focusable) {
             focusable.focus();
@@ -211,21 +206,21 @@ export class NgxVanService {
     /**
      * Menu type based on given breakpoint size: 'mobile' or 'desktop'
      */
-    private _getMenuType(breakPointSize: number) {
+    private getMenuType(breakPointSize: number) {
         return window.innerWidth <= breakPointSize ? 'mobile' : 'desktop';
     }
 
     /**
      * Get animation close state based on side type
      */
-    private _getNavCloseState(side: 'start' | 'end') {
+    private getNavCloseState(side: 'start' | 'end') {
         return side === 'start' ? 'closeLeft' : 'closeRight';
     }
 
     /**
      * Get animation open state based on side type
      */
-    private _getNavOpenState(side: 'start' | 'end') {
+    private getNavOpenState(side: 'start' | 'end') {
         return side === 'end' ? 'openLeft' : 'openRight';
     }
 }
