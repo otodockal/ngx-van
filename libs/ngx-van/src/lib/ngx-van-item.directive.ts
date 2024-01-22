@@ -1,4 +1,4 @@
-import { Directive, Input, inject } from '@angular/core';
+import { Directive, inject, input } from '@angular/core';
 import { NgxVan } from './ngx-van.component';
 
 @Directive({
@@ -11,14 +11,14 @@ import { NgxVan } from './ngx-van.component';
 export class NgxVanItem {
     private readonly _ngxVaComponent = inject(NgxVan);
 
-    @Input('ngx-van-item') ngxVanItem: 'dispose' | 'close' | '' = 'dispose';
+    ngxVanItem = input<'dispose' | 'close' | ''>('dispose', { alias: 'ngx-van-item' });
 
     protected close() {
         /**
          * allow only on mobile
          */
         if (this._ngxVaComponent.vm().menu === 'mobile') {
-            if (this.ngxVanItem === 'close' || this.ngxVanItem === '') {
+            if (this.ngxVanItem() === 'close' || this.ngxVanItem() === '') {
                 this._ngxVaComponent.closeMobileMenu();
             } else {
                 this._ngxVaComponent.disposeMobileMenu();
