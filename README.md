@@ -26,7 +26,7 @@ yarn add ngx-van
 ## TS
 
 ```ts
-import { NgxVan } from 'ngx-van';
+import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
 ```
 
 ## HTML
