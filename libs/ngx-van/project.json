@@ -9,8 +9,7 @@
             "executor": "@nx/angular:package",
             "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
             "options": {
-                "project": "libs/ngx-van/ng-package.json",
-                "updateBuildableProjectDepsInPackageJson": true
+                "project": "libs/ngx-van/ng-package.json"
             },
             "configurations": {
                 "production": {
@@ -30,8 +29,15 @@
             }
         },
         "lint": {
-            "executor": "@nx/eslint:lint"
-        }
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+              "lintFilePatterns": [
+                "libs/ngx-van/**/*.{ts,tsx,js,jsx}",
+                "libs/ngx-van/package.json"
+              ]
+            }
+          }
     },
     "tags": []
 }

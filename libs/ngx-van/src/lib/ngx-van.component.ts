@@ -5,19 +5,16 @@ import { Platform } from '@angular/cdk/platform';
 import { PortalModule, TemplatePortal } from '@angular/cdk/portal';
 import { AsyncPipe } from '@angular/common';
 import {
-    AfterRenderPhase,
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     OnInit,
     TemplateRef,
-    ViewChild,
     ViewContainerRef,
-    afterNextRender,
     computed,
     inject,
     input,
     untracked,
+    viewChild,
 } from '@angular/core';
 import { ngxVanAnimations } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
@@ -26,9 +23,6 @@ import { NgxVanService } from './ngx-van.service';
     standalone: true,
     selector: 'ngx-van',
     exportAs: 'ngxVan',
-    host: {
-        ngSkipHydration: '',
-    },
     animations: [ngxVanAnimations],
     template: `
         <!-- MOBILE: lazy, instatiate on demand using toggleMobileMenu() -->
@@ -36,9 +30,9 @@ import { NgxVanService } from './ngx-van.service';
         <ng-template #navContainer>
             <nav
                 [style]="voidMobileStyle()"
+                [cdkTrapFocus]="vm().isOpen"
                 [@nav]="navStates$ | async"
                 (@nav.done)="closeMobileMenuOnAnimationDone($event)"
-                [cdkTrapFocus]="vm().isOpen"
             >
                 <ng-content></ng-content>
             </nav>
@@ -46,7 +40,7 @@ import { NgxVanService } from './ngx-van.service';
         <!-- DESKTOP -->
         @if (vm().menu === 'desktop') {
             <div class="ngx-van-ssr" [@.disabled]="true">
-                <ng-template [cdkPortalOutlet]="navContainerPortal"></ng-template>
+                <ng-template [cdkPortalOutlet]="navContainerPortal()"></ng-template>
             </div>
         }
     `,
@@ -58,12 +52,17 @@ export class NgxVan implements OnInit {
     private readonly ngxVanService = inject(NgxVanService);
     private readonly viewContainer = inject(ViewContainerRef);
     private readonly isBrowser = inject(Platform).isBrowser;
-    private readonly cd = inject(ChangeDetectorRef);
 
     side = input<'start' | 'end'>('end');
     breakpoint = input<number | null>(991);
     closeOnEscapeKeyClick = input<'close' | 'dispose' | false>('close');
     closeOnBackdropClick = input<'close' | 'dispose' | false>('close');
+
+    private readonly navContainerTpl = viewChild.required<TemplateRef<HTMLElement>>('navContainer');
+
+    protected navContainerPortal = computed(
+        () => new TemplatePortal(this.navContainerTpl(), this.viewContainer),
+    );
 
     /**
      * Void (initial) style for mobile menu (and mobile animations)
@@ -78,31 +77,15 @@ export class NgxVan implements OnInit {
         return null;
     });
 
-    // TODO: use viewChild() once it's shipped
-    @ViewChild('navContainer')
-    private readonly navContainerTpl: TemplateRef<HTMLElement> | null = null;
-
+    /**
+     * Nav states - for animations only
+     */
     protected readonly navStates$ = this.ngxVanService.navStates$;
-
-    protected navContainerPortal: TemplatePortal<any> | null = null;
 
     /**
      * Vm properties accessible in templates
      */
     vm = this.ngxVanService.vm;
-
-    constructor() {
-        afterNextRender(
-            () => {
-                this.navContainerPortal = new TemplatePortal(
-                    this.navContainerTpl!,
-                    this.viewContainer,
-                );
-                this.cd.markForCheck();
-            },
-            { phase: AfterRenderPhase.Write },
-        );
-    }
 
     ngOnInit() {
         if (this.isBrowser) {
@@ -119,8 +102,8 @@ export class NgxVan implements OnInit {
         } else {
             this.ngxVanService.open(
                 triggerEl,
-                this.navContainerTpl!.elementRef.nativeElement,
-                this.navContainerPortal!,
+                this.navContainerTpl().elementRef.nativeElement,
+                this.navContainerPortal(),
                 this.side(),
                 this.closeOnEscapeKeyClick(),
                 this.closeOnBackdropClick(),

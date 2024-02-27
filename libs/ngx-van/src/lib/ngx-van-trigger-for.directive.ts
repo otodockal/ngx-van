@@ -12,7 +12,7 @@ import { NgxVan } from './ngx-van.component';
 export class NgxVanTriggerFor {
     private readonly el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-    ngxVanTriggerFor = input<NgxVan | null>(null);
+    ngxVanTriggerFor = input.required<NgxVan>();
     visible = input(false);
 
     protected isVisibleByDevice = computed(() => this.ngxVanTriggerFor()?.vm().menu === 'mobile');
