@@ -52,7 +52,9 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
         </li>
         <li>
             <a ngx-van-item routerLink="/deleted">
-                <mat-icon *ngIf="van.vm().menu === 'mobile'">delete</mat-icon>
+                @if (van.vm().menu === 'mobile') {
+                    <mat-icon>delete</mat-icon>
+                }
                 Deleted
             </a>
         </li>
@@ -111,7 +113,3 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
     }
 }
 ```
-
-## TODO
-
--   Add tests
