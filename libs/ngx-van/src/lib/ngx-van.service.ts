@@ -1,15 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
-import {
-    ChangeDetectorRef,
-    DestroyRef,
-    Injectable,
-    NgZone,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, distinctUntilChanged, first, fromEvent, map, race, startWith } from 'rxjs';
 
@@ -19,7 +10,6 @@ export class NgxVanService {
     private readonly overlay = inject(Overlay);
     private readonly destroyRef = inject(DestroyRef);
     private readonly ngZone = inject(NgZone);
-    private readonly isBrowser = inject(Platform).isBrowser;
 
     private overlayRef: OverlayRef | null = null;
     private triggerEl: HTMLElement | null = null;
@@ -30,10 +20,6 @@ export class NgxVanService {
 
     readonly menu = signal<'mobile' | 'desktop' | null>(null);
     readonly isOpen = signal(false);
-    readonly vm = computed(() => ({
-        isOpen: this.isOpen(),
-        menu: !this.isBrowser ? 'desktop' : this.menu(),
-    }));
 
     /**
      * Open nav overlay element

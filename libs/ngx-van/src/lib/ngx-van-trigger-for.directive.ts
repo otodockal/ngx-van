@@ -15,7 +15,7 @@ export class NgxVanTriggerFor {
     ngxVanTriggerFor = input.required<NgxVan>();
     visible = input(false);
 
-    protected isVisibleByDevice = computed(() => this.ngxVanTriggerFor()?.vm().menu === 'mobile');
+    protected isVisibleByDevice = computed(() => this.ngxVanTriggerFor()?.vm.menu() === 'mobile');
 
     protected toggleMobileMenu() {
         this.ngxVanTriggerFor()?.toggleMobileMenu(this.el);

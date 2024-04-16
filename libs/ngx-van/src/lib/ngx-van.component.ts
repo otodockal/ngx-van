@@ -13,6 +13,7 @@ import {
     computed,
     inject,
     input,
+    signal,
     untracked,
     viewChild,
 } from '@angular/core';
@@ -33,7 +34,7 @@ import { NgxVanService } from './ngx-van.service';
         <ng-template #navContainer>
             <nav
                 [style]="voidMobileStyle()"
-                [cdkTrapFocus]="vm().isOpen"
+                [cdkTrapFocus]="vm.isOpen()"
                 [@nav]="navStates$ | async"
                 (@nav.done)="closeMobileMenuOnAnimationDone($event)"
             >
@@ -41,7 +42,7 @@ import { NgxVanService } from './ngx-van.service';
             </nav>
         </ng-template>
         <!-- DESKTOP -->
-        @if (vm().menu === 'desktop') {
+        @if (vm.menu() === 'desktop') {
             <div class="ngx-van-ssr" [@.disabled]="true">
                 <ng-template [cdkPortalOutlet]="navContainerPortal()"></ng-template>
             </div>
@@ -72,7 +73,7 @@ export class NgxVan implements OnInit {
      * - needs to be set dynamically, so declared in component scope
      */
     protected voidMobileStyle = computed(() => {
-        if (this.vm().menu === 'mobile') {
+        if (this.vm.menu() === 'mobile') {
             return untracked(this.side) === 'end'
                 ? 'position: fixed; right: 0; transform: translateX(100%)'
                 : 'position: fixed; left: 0; transform: translateX(-100%)';
@@ -88,7 +89,13 @@ export class NgxVan implements OnInit {
     /**
      * Vm properties accessible in templates
      */
-    vm = this.ngxVanService.vm;
+    readonly vm = {
+        // it's 'desktop' on server
+        menu: !this.isBrowser
+            ? signal('desktop').asReadonly()
+            : this.ngxVanService.menu.asReadonly(),
+        isOpen: this.ngxVanService.isOpen.asReadonly(),
+    };
 
     ngOnInit() {
         if (this.isBrowser) {

@@ -17,7 +17,7 @@ export class NgxVanItem {
         /**
          * allow only on mobile
          */
-        if (this.ngxVaComponent.vm().menu === 'mobile') {
+        if (this.ngxVaComponent.vm.menu() === 'mobile') {
             if (this.ngxVanItem() === 'close' || this.ngxVanItem() === '') {
                 this.ngxVaComponent.closeMobileMenu();
             } else {

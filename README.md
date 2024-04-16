@@ -33,7 +33,7 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
 
 ```html
 <button [ngxVanTriggerFor]="van">
-    <mat-icon>{{ van.vm().isOpen ? 'close' : 'menu' }}</mat-icon>
+    <mat-icon>{{ van.vm.isOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
 <ngx-van [breakpoint]="991" [side]="'end'" #van>
@@ -52,7 +52,7 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
         </li>
         <li>
             <a ngx-van-item routerLink="/deleted">
-                @if (van.vm().menu === 'mobile') {
+                @if (van.vm.menu() === 'mobile') {
                     <mat-icon>delete</mat-icon>
                 }
                 Deleted
