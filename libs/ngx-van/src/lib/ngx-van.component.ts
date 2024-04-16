@@ -90,10 +90,7 @@ export class NgxVan implements OnInit {
      * Vm properties accessible in templates
      */
     readonly vm = {
-        // it's 'desktop' on server
-        menu: !this.isBrowser
-            ? signal('desktop').asReadonly()
-            : this.ngxVanService.menu.asReadonly(),
+        menu: this.ngxVanService.menu.asReadonly(),
         isOpen: this.ngxVanService.isOpen.asReadonly(),
     };
 

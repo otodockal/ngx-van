@@ -1,4 +1,5 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -10,6 +11,7 @@ export class NgxVanService {
     private readonly overlay = inject(Overlay);
     private readonly destroyRef = inject(DestroyRef);
     private readonly ngZone = inject(NgZone);
+    private readonly isBrowser = inject(Platform).isBrowser;
 
     private overlayRef: OverlayRef | null = null;
     private triggerEl: HTMLElement | null = null;
@@ -18,7 +20,7 @@ export class NgxVanService {
         'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
     >();
 
-    readonly menu = signal<'mobile' | 'desktop' | null>(null);
+    readonly menu = signal<'mobile' | 'desktop' | null>(this.isBrowser ? null : 'desktop');
     readonly isOpen = signal(false);
 
     /**
