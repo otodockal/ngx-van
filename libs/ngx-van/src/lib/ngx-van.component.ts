@@ -1,9 +1,8 @@
 import { AnimationEvent } from '@angular/animations';
 import { A11yModule } from '@angular/cdk/a11y';
-import { OverlayModule } from '@angular/cdk/overlay';
 import { Platform } from '@angular/cdk/platform';
-import { PortalModule, TemplatePortal } from '@angular/cdk/portal';
-import { AsyncPipe } from '@angular/common';
+import { TemplatePortal } from '@angular/cdk/portal';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -13,7 +12,6 @@ import {
     computed,
     inject,
     input,
-    signal,
     untracked,
     viewChild,
 } from '@angular/core';
@@ -44,12 +42,12 @@ import { NgxVanService } from './ngx-van.service';
         <!-- DESKTOP -->
         @if (vm.menu() === 'desktop') {
             <div class="ngx-van-ssr" [@.disabled]="true">
-                <ng-template [cdkPortalOutlet]="navContainerPortal()"></ng-template>
+                <ng-template [ngTemplateOutlet]="navContainer"></ng-template>
             </div>
         }
     `,
     providers: [NgxVanService],
-    imports: [AsyncPipe, A11yModule, PortalModule, OverlayModule],
+    imports: [AsyncPipe, A11yModule, NgTemplateOutlet],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxVan implements OnInit {
@@ -62,9 +60,11 @@ export class NgxVan implements OnInit {
     closeOnEscapeKeyClick = input<'close' | 'dispose' | false>('close');
     closeOnBackdropClick = input<'close' | 'dispose' | false>('close');
 
+    /**
+     * Portal for mobile menu
+     */
     private readonly navContainerTpl = viewChild.required<TemplateRef<HTMLElement>>('navContainer');
-
-    protected navContainerPortal = computed(
+    private readonly navContainerPortal = computed(
         () => new TemplatePortal(this.navContainerTpl(), this.viewContainer),
     );
 
@@ -87,7 +87,7 @@ export class NgxVan implements OnInit {
     protected readonly navStates$ = this.ngxVanService.navStates$;
 
     /**
-     * Vm properties accessible in templates
+     * Readonly vm properties accessible in templates
      */
     readonly vm = {
         menu: this.ngxVanService.menu.asReadonly(),
