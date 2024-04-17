@@ -9,7 +9,7 @@
             "executor": "@angular-devkit/build-angular:browser",
             "outputs": ["{options.outputPath}"],
             "options": {
-                "outputPath": "dist/apps/playground",
+                "outputPath": "dist/apps/playground/browser",
                 "index": "apps/playground/src/index.html",
                 "main": "apps/playground/src/main.ts",
                 "polyfills": "apps/playground/src/polyfills.ts",
@@ -83,6 +83,66 @@
             "options": {
                 "jestConfig": "apps/playground/jest.config.ts"
             }
+        },
+        "server": {
+            "dependsOn": ["build"],
+            "executor": "@angular-devkit/build-angular:server",
+            "options": {
+                "outputPath": "dist/apps/playground/server",
+                "main": "apps/playground/server.ts",
+                "tsConfig": "apps/playground/tsconfig.server.json",
+                "inlineStyleLanguage": "scss"
+            },
+            "configurations": {
+                "production": {
+                    "outputHashing": "media",
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/playground/src/environments/environment.ts",
+                            "with": "apps/playground/src/environments/environment.prod.ts"
+                        }
+                    ]
+                },
+                "development": {
+                    "buildOptimizer": false,
+                    "optimization": false,
+                    "sourceMap": true,
+                    "extractLicenses": false,
+                    "vendorChunk": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve-ssr": {
+            "executor": "@angular-devkit/build-angular:ssr-dev-server",
+            "configurations": {
+                "development": {
+                    "browserTarget": "playground:build:development",
+                    "serverTarget": "playground:server:development"
+                },
+                "production": {
+                    "browserTarget": "playground:build:production",
+                    "serverTarget": "playground:server:production"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "prerender": {
+            "executor": "@angular-devkit/build-angular:prerender",
+            "options": {
+                "routes": ["/"]
+            },
+            "configurations": {
+                "development": {
+                    "browserTarget": "playground:build:development",
+                    "serverTarget": "playground:server:development"
+                },
+                "production": {
+                    "browserTarget": "playground:build:production",
+                    "serverTarget": "playground:server:production"
+                }
+            },
+            "defaultConfiguration": "production"
         }
     },
     "tags": []
