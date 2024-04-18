@@ -29,7 +29,7 @@ export class NgxVanService {
     open(
         triggerEl: HTMLElement,
         target: Element,
-        navContainerPortal: TemplatePortal<any>,
+        portal: TemplatePortal<any>,
         type: 'start' | 'end',
         closeOnEscapeKeyClick: 'close' | 'dispose' | false,
         closeOnBackdropClick: 'close' | 'dispose' | false,
@@ -58,7 +58,7 @@ export class NgxVanService {
             scrollStrategy: this.overlay.scrollStrategies.block(),
             disposeOnNavigation: true,
         });
-        this.overlayRef.attach(navContainerPortal);
+        this.overlayRef.attach(portal);
 
         // bind closing events
         this.waitForCloseEvents(this.overlayRef, type, closeOnEscapeKeyClick, closeOnBackdropClick);

@@ -24,23 +24,28 @@ import { NgxVanService } from './ngx-van.service';
     exportAs: 'ngxVan',
     animations: [ngxVanAnimations],
     template: `
-        <!-- MOBILE: lazy, instatiate on demand using toggleMobileMenu() -->
-        <!-- DESKTOP: content for desktop -->
-        <ng-template #navContainer>
-            <nav
-                [style]="voidMobileStyle()"
-                [cdkTrapFocus]="vm.isOpen()"
-                [@nav]="navStates$ | async"
-                (@nav.done)="closeMobileMenuOnAnimationDone($event)"
-            >
-                <ng-content></ng-content>
-            </nav>
+        <!-- CONTENT FOR DESKTOP/MOBILE NAV -->
+        <ng-template #navContent>
+            <ng-content></ng-content>
         </ng-template>
-        <!-- DESKTOP -->
+
         @if (vm.menu() === 'desktop') {
-            <div class="ngx-van-ssr" [@.disabled]="true">
-                <ng-template [ngTemplateOutlet]="navContainer"></ng-template>
-            </div>
+            <!-- DESKTOP -->
+            <nav class="ngx-van-ssr">
+                <ng-template [ngTemplateOutlet]="navContent"></ng-template>
+            </nav>
+        } @else if (vm.menu() === 'mobile') {
+            <!-- MOBILE -->
+            <ng-template #portal>
+                <nav
+                    [style]="voidMobileStyle()"
+                    [cdkTrapFocus]="vm.isOpen()"
+                    [@nav]="navStates$ | async"
+                    (@nav.done)="closeMobileMenuOnAnimationDone($event)"
+                >
+                    <ng-template [ngTemplateOutlet]="navContent"></ng-template>
+                </nav>
+            </ng-template>
         }
     `,
     providers: [NgxVanService],
@@ -60,9 +65,9 @@ export class NgxVan implements OnInit {
     /**
      * Portal for mobile menu
      */
-    private readonly navContainerTpl = viewChild.required<TemplateRef<HTMLElement>>('navContainer');
-    private readonly navContainerPortal = computed(
-        () => new TemplatePortal(this.navContainerTpl(), this.viewContainer),
+    private readonly portalRef = viewChild.required<TemplateRef<HTMLElement>>('portal');
+    private readonly portalTpl = computed(
+        () => new TemplatePortal(this.portalRef(), this.viewContainer),
     );
 
     /**
@@ -106,8 +111,8 @@ export class NgxVan implements OnInit {
         } else {
             this.ngxVanService.open(
                 triggerEl,
-                this.navContainerTpl().elementRef.nativeElement,
-                this.navContainerPortal(),
+                this.portalRef().elementRef.nativeElement,
+                this.portalTpl(),
                 this.side(),
                 this.closeOnEscapeKeyClick(),
                 this.closeOnBackdropClick(),
