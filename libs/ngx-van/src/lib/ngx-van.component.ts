@@ -74,7 +74,7 @@ export class NgxVan implements OnInit {
      * Void (initial) style for mobile menu (and mobile animations)
      * - needs to be set dynamically, so declared in component scope
      */
-    protected voidMobileStyle = computed(() => {
+    protected readonly voidMobileStyle = computed(() => {
         if (this.vm.menu() === 'mobile') {
             return untracked(this.side) === 'end'
                 ? 'position: fixed; right: 0; transform: translateX(100%)'
