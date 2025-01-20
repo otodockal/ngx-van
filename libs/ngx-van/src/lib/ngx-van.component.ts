@@ -14,38 +14,31 @@ import {
     viewChild,
 } from '@angular/core';
 import { CloseOnBackdropClick, CloseOnEscapeKeyClick, MenuSide, NavState } from './ngx-van';
-import { styleTransform, voidMobileStyle } from './ngx-van-animations';
+import { styleTransform, style } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
 
 @Component({
     selector: 'ngx-van',
     exportAs: 'ngxVan',
     template: `
-        <!-- CONTENT FOR DESKTOP/MOBILE NAV -->
-        <ng-template #content>
-            <ng-content />
-        </ng-template>
-        <!-- NAV -->
         @if (vm.menu() === 'desktop') {
-            <!-- NAV.DESKTOP -->
             <nav class="ngx-van-ssr">
-                <ng-template [ngTemplateOutlet]="content" />
+                <ng-container [ngTemplateOutlet]="content" />
             </nav>
         } @else if (vm.menu() === 'mobile') {
-            <!-- NAV.MOBILE -->
             <ng-template #portal>
                 <nav
-                    [style]="voidMobileStyle()"
-                    [style.position]="'fixed'"
+                    [style]="style()"
                     [style.transition]="styleTransition()"
                     [style.transform]="styleTransform()"
                     [cdkTrapFocus]="vm.isOpen()"
-                    (transitionend)="closeMobileMenuOnAnimationDone(navState())"
+                    (transitionend)="transitionend(navState())"
                 >
-                    <ng-template [ngTemplateOutlet]="content" />
+                    <ng-container [ngTemplateOutlet]="content" />
                 </nav>
             </ng-template>
         }
+        <ng-template #content><ng-content /></ng-template>
     `,
     providers: [NgxVanService],
     imports: [A11yModule, NgTemplateOutlet],
@@ -80,7 +73,7 @@ export class NgxVan implements OnInit {
 
     protected readonly navState = this.ngxVanService.navState.asReadonly();
 
-    protected readonly voidMobileStyle = voidMobileStyle(this.vm.menu, this.side);
+    protected readonly style = style(this.vm.menu, this.side);
 
     protected readonly styleTransform = styleTransform(this.navState, this.side);
 
@@ -125,7 +118,7 @@ export class NgxVan implements OnInit {
     /**
      * Dispose mobile menu on animation done
      */
-    protected closeMobileMenuOnAnimationDone(state: NavState) {
+    protected transitionend(state: NavState) {
         if (state === 'closeLeft' || state === 'closeRight') {
             this.disposeMobileMenu();
         }
