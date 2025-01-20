@@ -25,7 +25,7 @@
                         "style": "kebab-case"
                     }
                 ],
-                "@angular-eslint/no-host-metadata-property": "off"
+                "@angular-eslint/prefer-standalone": "off"
             }
         },
         {
@@ -37,8 +37,8 @@
             "files": ["*.json"],
             "parser": "jsonc-eslint-parser",
             "rules": {
-              "@nx/dependency-checks": "error"
+                "@nx/dependency-checks": "error"
             }
-          }
+        }
     ]
 }
