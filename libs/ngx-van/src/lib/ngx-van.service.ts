@@ -3,7 +3,14 @@ import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, distinctUntilChanged, first, fromEvent, map, race, startWith } from 'rxjs';
+import { distinctUntilChanged, first, fromEvent, map, race, startWith } from 'rxjs';
+import {
+    CloseOnBackdropClick,
+    CloseOnEscapeKeyClick,
+    MenuSide,
+    MenuType,
+    NavState,
+} from './ngx-van';
 
 @Injectable()
 export class NgxVanService {
@@ -16,11 +23,8 @@ export class NgxVanService {
     private overlayRef: OverlayRef | null = null;
     private triggerEl: HTMLElement | null = null;
 
-    readonly navStates$ = new Subject<
-        'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null
-    >();
-
-    readonly menu = signal<'mobile' | 'desktop' | null>(this.isBrowser ? null : 'desktop');
+    readonly navState = signal<NavState>(null);
+    readonly menu = signal<MenuType>(this.isBrowser ? null : 'desktop');
     readonly isOpen = signal(false);
 
     /**
@@ -30,9 +34,9 @@ export class NgxVanService {
         triggerEl: HTMLElement,
         target: Element,
         portal: TemplatePortal<any>,
-        type: 'start' | 'end',
-        closeOnEscapeKeyClick: 'close' | 'dispose' | false,
-        closeOnBackdropClick: 'close' | 'dispose' | false,
+        side: MenuSide,
+        closeOnEscapeKeyClick: CloseOnEscapeKeyClick,
+        closeOnBackdropClick: CloseOnBackdropClick,
     ) {
         this.triggerEl = triggerEl;
         const positionStrategy = this.overlay
@@ -61,7 +65,7 @@ export class NgxVanService {
         this.overlayRef.attach(portal);
 
         // bind closing events
-        this.waitForCloseEvents(this.overlayRef, type, closeOnEscapeKeyClick, closeOnBackdropClick);
+        this.waitForCloseEvents(this.overlayRef, side, closeOnEscapeKeyClick, closeOnBackdropClick);
         // focus first focusable el
         this.focusFirstFocusableElement(this.overlayRef);
 
@@ -83,8 +87,8 @@ export class NgxVanService {
     /**
      * Close nav overlay element with respect to animation
      */
-    close(side: 'start' | 'end') {
-        this.navStates$.next(this.getNavCloseState(side));
+    close(side: MenuSide) {
+        this.navState.set(this.getNavCloseState(side));
     }
 
     /**
@@ -105,7 +109,7 @@ export class NgxVanService {
                             this.menu.set(menuType);
                             // clear animation state
                             if (menuType === 'desktop') {
-                                this.navStates$.next(null);
+                                this.navState.set(null);
                                 this.dispose();
                             }
                             this.cd.markForCheck();
@@ -123,13 +127,13 @@ export class NgxVanService {
      */
     private waitForCloseEvents(
         overlayRef: OverlayRef,
-        side: 'start' | 'end',
-        closeOnEscapeKeyClick: 'close' | 'dispose' | false,
-        closeOnBackdropClick: 'close' | 'dispose' | false,
+        side: MenuSide,
+        closeOnEscapeKeyClick: CloseOnEscapeKeyClick,
+        closeOnBackdropClick: CloseOnBackdropClick,
     ) {
         // notify UI
         this.isOpen.set(true);
-        this.navStates$.next(this.getNavOpenState(side));
+        this.navState.set(this.getNavOpenState(side));
 
         const raceEvents = [];
 
@@ -201,14 +205,14 @@ export class NgxVanService {
     /**
      * Get animation close state based on side type
      */
-    private getNavCloseState(side: 'start' | 'end') {
+    private getNavCloseState(side: MenuSide) {
         return side === 'start' ? 'closeLeft' : 'closeRight';
     }
 
     /**
      * Get animation open state based on side type
      */
-    private getNavOpenState(side: 'start' | 'end') {
+    private getNavOpenState(side: MenuSide) {
         return side === 'end' ? 'openLeft' : 'openRight';
     }
 }

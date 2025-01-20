@@ -1,12 +1,29 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { computed, Signal, untracked } from '@angular/core';
+import { MenuSide, MenuType, NavState } from './ngx-van';
 
-export const ngxVanAnimations = trigger('nav', [
-    // left to right animation style
-    state('openLeft', style({ transform: 'translateX(0)' })),
-    state('closeLeft', style({ transform: 'translateX(-100%)' })),
-    // right to left animation style
-    state('openRight', style({ transform: 'translateX(0)' })),
-    state('closeRight', style({ transform: 'translateX(100%)' })),
-    // animation
-    transition('* <=> *', animate('400ms cubic-bezier(0.25, 0.8, 0.25, 1)')),
-]);
+export function voidMobileStyle(menu: Signal<MenuType>, side: Signal<MenuSide>) {
+    return computed(() => {
+        if (menu() === 'mobile') {
+            return untracked(side) === 'end'
+                ? 'right: 0; transform: translateX(100%)'
+                : 'left: 0; transform: translateX(-100%)';
+        }
+        return null;
+    });
+}
+
+export function styleTransform(navStates: Signal<NavState>, side: Signal<MenuSide>) {
+    return computed(() => {
+        switch (navStates()) {
+            case 'openRight':
+            case 'openLeft':
+                return 'translateX(0)';
+            case 'closeRight':
+                return 'translateX(100%)';
+            case 'closeLeft':
+                return 'translateX(-100%)';
+            default:
+                return untracked(side) === 'end' ? 'translateX(100%)' : 'translateX(-100%)';
+        }
+    });
+}
