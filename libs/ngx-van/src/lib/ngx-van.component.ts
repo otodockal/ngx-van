@@ -1,20 +1,19 @@
 import { A11yModule } from '@angular/cdk/a11y';
-import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
-    OnInit,
     TemplateRef,
     ViewContainerRef,
     computed,
+    effect,
     inject,
     input,
     viewChild,
 } from '@angular/core';
 import { CloseOnBackdropClick, CloseOnEscapeKeyClick, MenuSide, NavState } from './ngx-van';
-import { styleTransform, style } from './ngx-van-animations';
+import { style, styleTransform } from './ngx-van-animations';
 import { NgxVanService } from './ngx-van.service';
 
 @Component({
@@ -44,10 +43,9 @@ import { NgxVanService } from './ngx-van.service';
     imports: [A11yModule, NgTemplateOutlet],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgxVan implements OnInit {
+export class NgxVan {
     private readonly ngxVanService = inject(NgxVanService);
     private readonly viewContainer = inject(ViewContainerRef);
-    private readonly isBrowser = inject(Platform).isBrowser;
 
     side = input<MenuSide>('end');
     breakpoint = input<number | null>(991);
@@ -72,15 +70,14 @@ export class NgxVan implements OnInit {
     };
 
     protected readonly navState = this.ngxVanService.navState.asReadonly();
-
     protected readonly style = style(this.vm.menu, this.side);
-
     protected readonly styleTransform = styleTransform(this.navState, this.side);
 
-    ngOnInit() {
-        if (this.isBrowser) {
-            this.ngxVanService.waitForDesktopAndClose(this.breakpoint());
-        }
+    constructor() {
+        effect((cleanup) => {
+            const subs = this.ngxVanService.onResize(this.side(), this.breakpoint());
+            cleanup(() => subs?.unsubscribe());
+        });
     }
 
     /**
@@ -102,21 +99,21 @@ export class NgxVan implements OnInit {
     }
 
     /**
-     * Close mobile menu with respect to animation
+     * Closes the mobile menu with animation
      */
     closeMobileMenu() {
         this.ngxVanService.close(this.side());
     }
 
     /**
-     * Close mobile menu without animation
+     * Closes the mobile menu immediately without animation
      */
     disposeMobileMenu() {
-        this.ngxVanService.dispose();
+        this.ngxVanService.dispose(this.side());
     }
 
     /**
-     * Dispose mobile menu on animation done
+     * Handles the transition end event for menu animations
      */
     protected transitionend(state: NavState) {
         if (state === 'closeLeft' || state === 'closeRight') {

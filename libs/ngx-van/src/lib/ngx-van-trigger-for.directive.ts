@@ -2,7 +2,6 @@ import { computed, Directive, ElementRef, inject, input } from '@angular/core';
 import { NgxVan } from './ngx-van.component';
 
 @Directive({
-    standalone: true,
     selector: '[ngxVanTriggerFor]',
     host: {
         '(click)': 'toggleMobileMenu()',

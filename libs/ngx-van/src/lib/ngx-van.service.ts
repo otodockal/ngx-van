@@ -3,7 +3,7 @@ import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { distinctUntilChanged, first, fromEvent, map, race, startWith } from 'rxjs';
+import { distinctUntilChanged, first, fromEvent, map, race, startWith, tap } from 'rxjs';
 import {
     CloseOnBackdropClick,
     CloseOnEscapeKeyClick,
@@ -39,33 +39,31 @@ export class NgxVanService {
         closeOnBackdropClick: CloseOnBackdropClick,
     ) {
         this.triggerEl = triggerEl;
-        const positionStrategy = this.overlay
-            .position()
-            .flexibleConnectedTo(target)
-            .withPositions([
-                {
-                    overlayX: 'start',
-                    overlayY: 'top',
-                    originX: 'start',
-                    originY: 'bottom',
-                },
-            ])
-            .withPush(false)
-            .withFlexibleDimensions(false);
-
         // create nav overlay
         this.overlayRef = this.overlay.create({
             hasBackdrop: true,
             backdropClass: 'ngx-van-mobile-backdrop',
             panelClass: 'ngx-van-mobile',
-            positionStrategy,
+            positionStrategy: this.overlay
+                .position()
+                .flexibleConnectedTo(target)
+                .withPositions([
+                    {
+                        overlayX: 'start',
+                        overlayY: 'top',
+                        originX: 'start',
+                        originY: 'bottom',
+                    },
+                ])
+                .withPush(false)
+                .withFlexibleDimensions(false),
             scrollStrategy: this.overlay.scrollStrategies.block(),
             disposeOnNavigation: true,
         });
         this.overlayRef.attach(portal);
 
         // bind closing events
-        this.waitForCloseEvents(this.overlayRef, side, closeOnEscapeKeyClick, closeOnBackdropClick);
+        this.onCloseEvents(this.overlayRef, side, closeOnEscapeKeyClick, closeOnBackdropClick);
         // focus first focusable el
         this.focusFirstFocusableElement(this.overlayRef);
 
@@ -75,12 +73,13 @@ export class NgxVanService {
     /**
      * Close nav overlay element without animation
      */
-    dispose() {
+    dispose(side: MenuSide) {
         if (this.overlayRef) {
             this.overlayRef.dispose();
             this.overlayRef = null;
             this.triggerEl?.focus();
             this.triggerEl = null;
+            this.close(side); // no animation, but it gets navState to default state
         }
     }
 
@@ -94,38 +93,35 @@ export class NgxVanService {
     /**
      * On window resize event check if menuType is 'desktop' and remove overlay eventually
      */
-    waitForDesktopAndClose(breakpoint: number | null) {
-        if (breakpoint !== null) {
-            this.ngZone.runOutsideAngular(() => {
-                fromEvent(window, 'resize')
-                    .pipe(
-                        startWith(this.getMenuType(breakpoint)),
-                        map(() => this.getMenuType(breakpoint)),
-                        distinctUntilChanged(),
-                        takeUntilDestroyed(this.destroyRef),
-                    )
-                    .subscribe((menuType) => {
-                        this.ngZone.run(() => {
-                            this.menu.set(menuType);
-                            // clear animation state
-                            if (menuType === 'desktop') {
-                                this.navState.set(null);
-                                this.dispose();
-                            }
-                            this.cd.markForCheck();
-                        });
-                    });
-            });
-        } else {
-            this.menu.set('desktop');
-            this.cd.markForCheck();
+    onResize(side: MenuSide, breakpoint: number | null) {
+        if (breakpoint === null) {
+            return this.menu.set('desktop');
         }
+        return this.ngZone.runOutsideAngular(() =>
+            fromEvent(window, 'resize')
+                .pipe(
+                    startWith(this.getMenuType(breakpoint)),
+                    map(() => this.getMenuType(breakpoint)),
+                    distinctUntilChanged(),
+                    takeUntilDestroyed(this.destroyRef),
+                )
+                .subscribe((menuType) => {
+                    this.ngZone.run(() => {
+                        this.menu.set(menuType);
+                        // clear animation state
+                        if (menuType === 'desktop') {
+                            this.dispose(side);
+                            this.navState.set(null);
+                        }
+                    });
+                }),
+        );
     }
 
     /**
      * Schedule close on Esc click, Backdrop click
      */
-    private waitForCloseEvents(
+    private onCloseEvents(
         overlayRef: OverlayRef,
         side: MenuSide,
         closeOnEscapeKeyClick: CloseOnEscapeKeyClick,
@@ -135,53 +131,41 @@ export class NgxVanService {
         this.isOpen.set(true);
         this.navState.set(this.getNavOpenState(side));
 
-        const raceEvents = [];
+        const events = [];
 
-        // Esc click
         if (closeOnEscapeKeyClick !== false) {
-            raceEvents.push(
+            events.push(
                 overlayRef.keydownEvents().pipe(
                     first((e) => e.code.toLowerCase() === 'escape'),
-                    map(() => 'ESC_KEY_CLICK' as const),
+                    tap(() => {
+                        this[closeOnEscapeKeyClick](side);
+                        this.cd.markForCheck();
+                    }),
                 ),
             );
         }
 
-        // Backdrop click
         if (closeOnBackdropClick !== false) {
-            raceEvents.push(
+            events.push(
                 overlayRef.backdropClick().pipe(
                     first(),
-                    map(() => 'BACKDROP_CLICK' as const),
+                    tap(() => {
+                        this[closeOnBackdropClick](side);
+                        this.cd.markForCheck();
+                    }),
                 ),
             );
         }
 
-        race(raceEvents).subscribe((e) => {
-            if (e === 'ESC_KEY_CLICK') {
-                if (closeOnEscapeKeyClick === 'close') {
-                    this.close(side);
-                } else if (closeOnEscapeKeyClick === 'dispose') {
-                    this.dispose();
-                }
-            } else if (e === 'BACKDROP_CLICK') {
-                if (closeOnBackdropClick === 'close') {
-                    this.close(side);
-                } else if (closeOnBackdropClick === 'dispose') {
-                    this.dispose();
-                }
-            }
-            this.cd.markForCheck();
-        });
+        race(events).subscribe();
 
-        // null overalyRef on every time is an element detached
+        // null overlayRef on every time is an element detached
         overlayRef
             .detachments()
             .pipe(first())
             .subscribe(() => {
-                this.isOpen.set(false);
                 this.overlayRef = null;
-                this.cd.markForCheck();
+                this.isOpen.set(false);
             });
     }
 

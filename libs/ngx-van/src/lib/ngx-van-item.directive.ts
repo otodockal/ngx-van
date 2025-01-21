@@ -2,7 +2,6 @@ import { Directive, inject, input } from '@angular/core';
 import { NgxVan } from './ngx-van.component';
 
 @Directive({
-    standalone: true,
     selector: '[ngx-van-item]',
     host: {
         '(click)': 'close()',
