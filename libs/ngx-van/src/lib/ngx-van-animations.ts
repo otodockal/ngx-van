@@ -8,8 +8,8 @@ export function style(menu: Signal<MenuType>, side: Signal<MenuSide>) {
     return computed(() => {
         if (menu() === 'mobile') {
             return untracked(side) === 'end'
-                ? 'position: fixed; right: 0; transform: translateX(100%)'
-                : 'position: fixed; left: 0; transform: translateX(-100%)';
+                ? 'position: fixed; right: 0; transform: translate3d(100%, 0, 0)'
+                : 'position: fixed; left: 0; transform: translate3d(-100%, 0, 0)';
         }
         return null;
     });
@@ -23,13 +23,15 @@ export function styleTransform(navStates: Signal<NavState>, side: Signal<MenuSid
         switch (navStates()) {
             case 'openRight':
             case 'openLeft':
-                return 'translateX(0)';
+                return 'translate3d(0, 0, 0)';
             case 'closeRight':
-                return 'translateX(100%)';
+                return 'translate3d(100%, 0, 0)';
             case 'closeLeft':
-                return 'translateX(-100%)';
+                return 'translate3d(-100%, 0, 0)';
             default:
-                return untracked(side) === 'end' ? 'translateX(100%)' : 'translateX(-100%)';
+                return untracked(side) === 'end'
+                    ? 'translate3d(100%, 0, 0)'
+                    : 'translate3d(-100%, 0, 0)';
         }
     });
 }

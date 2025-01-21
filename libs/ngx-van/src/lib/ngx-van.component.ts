@@ -27,10 +27,10 @@ import { NgxVanService } from './ngx-van.service';
         } @else if (vm.menu() === 'mobile') {
             <ng-template #portal>
                 <nav
-                    [style]="style()"
-                    [style.transition]="styleTransition()"
-                    [style.transform]="styleTransform()"
                     [cdkTrapFocus]="vm.isOpen()"
+                    [style]="style()"
+                    [style.transform]="styleTransform()"
+                    [style.transition]="styleTransition()"
                     (transitionend)="transitionend(navState())"
                 >
                     <ng-container [ngTemplateOutlet]="content" />
