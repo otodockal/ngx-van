@@ -1,5 +1,5 @@
 import { computed, Directive, ElementRef, inject, input } from '@angular/core';
-import { NgxVan } from './ngx-van.component';
+import { NgxVan } from './ngx-van';
 
 @Directive({
     selector: '[ngxVanTriggerFor]',
@@ -11,8 +11,8 @@ import { NgxVan } from './ngx-van.component';
 export class NgxVanTriggerFor {
     private readonly el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
-    ngxVanTriggerFor = input.required<NgxVan>();
-    visible = input(false);
+    readonly ngxVanTriggerFor = input.required<NgxVan>();
+    readonly visible = input(false);
 
     protected isVisibleByDevice = computed(() => this.ngxVanTriggerFor()?.vm.menu() === 'mobile');
 

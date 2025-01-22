@@ -1,5 +1,5 @@
 import { Directive, inject, input } from '@angular/core';
-import { NgxVan } from './ngx-van.component';
+import { NgxVan } from './ngx-van';
 
 @Directive({
     selector: '[ngx-van-item]',
@@ -10,7 +10,7 @@ import { NgxVan } from './ngx-van.component';
 export class NgxVanItem {
     private readonly ngxVaComponent = inject(NgxVan);
 
-    ngxVanItem = input<'dispose' | 'close' | ''>('dispose', { alias: 'ngx-van-item' });
+    readonly ngxVanItem = input<'dispose' | 'close' | ''>('dispose', { alias: 'ngx-van-item' });
 
     protected close() {
         /**

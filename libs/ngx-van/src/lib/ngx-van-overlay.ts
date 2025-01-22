@@ -13,7 +13,7 @@ import {
 } from './ngx-van';
 
 @Injectable()
-export class NgxVanService {
+export class NgxVanOverlay {
     private readonly cd = inject(ChangeDetectorRef);
     private readonly overlay = inject(Overlay);
     private readonly destroyRef = inject(DestroyRef);
