@@ -38,8 +38,8 @@ export type CloseOnBackdropClick = 'close' | 'dispose' | false;
                 <nav
                     [cdkTrapFocus]="vm.isOpen()"
                     [style]="style()"
-                    [style.transform]="styleTransform()"
-                    [style.transition]="styleTransition()"
+                    [style.transform]="transform()"
+                    [style.transition]="transition()"
                     (transitionend)="transitionend(navState())"
                 >
                     <ng-container [ngTemplateOutlet]="content" />
@@ -58,9 +58,9 @@ export class NgxVan {
 
     readonly side = input<MenuSide>('end');
     readonly breakpoint = input<number | null>(991);
-    readonly closeOnEscapeKeyClick = input<CloseOnEscapeKeyClick>('close');
     readonly closeOnBackdropClick = input<CloseOnBackdropClick>('close');
-    readonly styleTransition = input('transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)');
+    readonly closeOnEscapeKeyClick = input<CloseOnEscapeKeyClick>('close');
+    readonly transition = input('transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)');
 
     /**
      * Portal for mobile menu
@@ -80,7 +80,7 @@ export class NgxVan {
 
     protected readonly navState = this.ngxVanOverlay.navState.asReadonly();
     protected readonly style = style(this.vm.menu, this.side);
-    protected readonly styleTransform = styleTransform(this.navState, this.side);
+    protected readonly transform = styleTransform(this.navState, this.side);
 
     constructor() {
         effect((cleanup) => {

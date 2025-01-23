@@ -6,10 +6,11 @@
         </app-icon>
     </button>
     <ngx-van
-        [breakpoint]="991"
         [side]="'end'"
-        [closeOnBackdropClick]="'close'"
+        [breakpoint]="991"
         [closeOnEscapeKeyClick]="'dispose'"
+        [closeOnBackdropClick]="'close'"
+        [transition]="'transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)'"
         #van
     >
         <ul>

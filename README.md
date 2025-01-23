@@ -12,10 +12,6 @@
 npm install ngx-van
 ```
 
-```bash
-yarn add ngx-van
-```
-
 ## Demos
 
 -   [Vertical menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/angular-ivy-afbbds?file=src/app/app.component.html)
@@ -31,12 +27,19 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
 
 ## HTML
 
-```html
+```angular
 <button [ngxVanTriggerFor]="van">
     <mat-icon>{{ van.vm.isOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
-<ngx-van [breakpoint]="991" [side]="'end'" #van>
+<ngx-van
+    [side]="'end'"
+    [breakpoint]="991"
+    [closeOnEscapeKeyClick]="'dispose'"
+    [closeOnBackdropClick]="'close'"
+    [transition]="'transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)'"
+    #van
+>
     <ul>
         <li>
             <a ngx-van-item routerLink="/inbox">Inbox</a>
@@ -52,8 +55,8 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
         </li>
         <li>
             <a ngx-van-item routerLink="/deleted">
-                @if (van.vm.menu() === 'mobile') {
-                    <mat-icon>delete</mat-icon>
+                @if (van.vm.menu() === 'desktop') {
+                    <app-icon>delete</app-icon>
                 }
                 Deleted
             </a>
@@ -61,6 +64,20 @@ import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
     </ul>
 </ngx-van>
 ```
+
+## Animations
+
+You can customize the transition animation. Here are some examples:
+
+-   Default elastic effect: `transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)`
+-   Smooth linear: `transform 300ms linear`
+-   Ease in-out: `transform 350ms ease-in-out`
+-   Quick snap: `transform 200ms ease-out`
+-   Slow and smooth: `transform 600ms cubic-bezier(0.4, 0, 0.2, 1)`
+-   Sharp acceleration: `transform 300ms cubic-bezier(0.4, 0, 1, 1)`
+-   Gentle deceleration: `transform 300ms cubic-bezier(0, 0, 0.2, 1)`
+-   Spring-like: `transform 450ms cubic-bezier(0.175, 0.885, 0.32, 1.275)`
+-   Bounce effect: `transform 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55)`
 
 ## CSS
 
