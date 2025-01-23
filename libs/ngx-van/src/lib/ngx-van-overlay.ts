@@ -157,12 +157,12 @@ export class NgxVanOverlay {
             );
         }
 
-        race(events).subscribe();
+        race(events).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
 
         // null overlayRef on every time is an element detached
         overlayRef
             .detachments()
-            .pipe(first())
+            .pipe(first(), takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
                 this.overlayRef = null;
                 this.isOpen.set(false);
