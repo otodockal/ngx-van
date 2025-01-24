@@ -1,4 +1,5 @@
 import { A11yModule } from '@angular/cdk/a11y';
+import { Platform } from '@angular/cdk/platform';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet } from '@angular/common';
 import {
@@ -55,6 +56,7 @@ export type CloseOnBackdropClick = 'close' | 'dispose' | false;
 export class NgxVan {
     private readonly ngxVanOverlay = inject(NgxVanOverlay);
     private readonly viewContainer = inject(ViewContainerRef);
+    private readonly isBrowser = inject(Platform).isBrowser;
 
     readonly side = input<NavSide>('end');
     readonly breakpoint = input<number | null>(991);
@@ -83,10 +85,12 @@ export class NgxVan {
     protected readonly transform = styleTransform(this.navState, this.side);
 
     constructor() {
-        effect((cleanup) => {
-            const subs = this.ngxVanOverlay.onResize(this.side(), this.breakpoint());
-            cleanup(() => subs?.unsubscribe());
-        });
+        if (this.isBrowser) {
+            effect((cleanup) => {
+                const subs = this.ngxVanOverlay.onResize(this.side(), this.breakpoint());
+                cleanup(() => subs?.unsubscribe());
+            });
+        }
     }
 
     /**
