@@ -81,9 +81,9 @@ You can customize the transition animation. Here are some examples:
 
 ## CSS
 
--   CSS for mobile nav only.
--   Add snippet to style.scss. It has to be declared in the global scope.
--   Change styling according to your preferences.
+-   Required CSS for mobile navigation styling
+-   Add the following snippet to your global `styles.scss` file
+-   Customize the styles to match your design system
 
 ```scss
 .ngx-van-mobile {
@@ -120,8 +120,8 @@ You can customize the transition animation. Here are some examples:
 
 ## SSR
 
--   In order to prevent desktop nav flickering on mobile (when rendered on the server), add the following CSS snippet.
--   Use only if your website is SSR.
+-   Add this CSS snippet to prevent the desktop navigation from briefly appearing on mobile devices during server-side rendering
+-   Only required when using Server-Side Rendering (SSR)
 
 ```scss
 .ngx-van-ssr {
