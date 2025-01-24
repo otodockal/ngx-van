@@ -2,7 +2,7 @@
 <header>
     <button [ngxVanTrigger]="van">
         <app-icon>
-            {{ van.vm.isOpen() ? 'close' : 'menu_open' }}
+            {{ van.api.isOpen() ? 'close' : 'menu_open' }}
         </app-icon>
     </button>
     <ngx-van
@@ -16,7 +16,7 @@
         <ul>
             <li>
                 <a ngx-van-item="dispose" routerLink="/">
-                    @if (van.vm.menu() === 'desktop') {
+                    @if (van.api.nav() === 'desktop') {
                         <app-icon>inbox</app-icon>
                     }
                     Inbox
@@ -24,7 +24,7 @@
             </li>
             <li>
                 <a ngx-van-item routerLink="/starred">
-                    @if (van.vm.menu() === 'desktop') {
+                    @if (van.api.nav() === 'desktop') {
                         <app-icon>star</app-icon>
                     }
                     Starred
@@ -32,7 +32,7 @@
             </li>
             <li>
                 <a ngx-van-item="close" routerLink="/important">
-                    @if (van.vm.menu() === 'desktop') {
+                    @if (van.api.nav() === 'desktop') {
                         <app-icon>label_important</app-icon>
                     }
                     Important
@@ -40,7 +40,7 @@
             </li>
             <li>
                 <a ngx-van-item routerLink="/drafts">
-                    @if (van.vm.menu() === 'desktop') {
+                    @if (van.api.nav() === 'desktop') {
                         <app-icon>drafts</app-icon>
                     }
                     Drafts
@@ -48,7 +48,7 @@
             </li>
             <li>
                 <a ngx-van-item routerLink="/deleted">
-                    @if (van.vm.menu() === 'desktop') {
+                    @if (van.api.nav() === 'desktop') {
                         <app-icon>delete</app-icon>
                     }
                     Deleted

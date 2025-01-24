@@ -4,13 +4,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { ChangeDetectorRef, DestroyRef, Injectable, NgZone, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, first, fromEvent, map, race, startWith, tap } from 'rxjs';
-import {
-    CloseOnBackdropClick,
-    CloseOnEscapeKeyClick,
-    MenuSide,
-    MenuType,
-    NavState,
-} from './ngx-van';
+import { CloseOnBackdropClick, CloseOnEscapeKeyClick, NavSide, NavState, NavType } from './ngx-van';
 
 @Injectable()
 export class NgxVanOverlay {
@@ -24,7 +18,7 @@ export class NgxVanOverlay {
     private triggerEl: HTMLElement | null = null;
 
     readonly navState = signal<NavState>(null);
-    readonly menu = signal<MenuType>(this.isBrowser ? null : 'desktop');
+    readonly nav = signal<NavType>(this.isBrowser ? null : 'desktop');
     readonly isOpen = signal(false);
 
     /**
@@ -34,7 +28,7 @@ export class NgxVanOverlay {
         triggerEl: HTMLElement,
         target: Element,
         portal: TemplatePortal<any>,
-        side: MenuSide,
+        side: NavSide,
         closeOnEscapeKeyClick: CloseOnEscapeKeyClick,
         closeOnBackdropClick: CloseOnBackdropClick,
     ) {
@@ -73,7 +67,7 @@ export class NgxVanOverlay {
     /**
      * Close nav overlay element without animation
      */
-    dispose(side: MenuSide) {
+    dispose(side: NavSide) {
         if (this.overlayRef) {
             this.overlayRef.dispose();
             this.overlayRef = null;
@@ -86,30 +80,30 @@ export class NgxVanOverlay {
     /**
      * Close nav overlay element with respect to animation
      */
-    close(side: MenuSide) {
+    close(side: NavSide) {
         this.navState.set(this.getNavCloseState(side));
     }
 
     /**
-     * On window resize event check if menuType is 'desktop' and remove overlay eventually
+     * On window resize event check if NavType is 'desktop' and remove overlay eventually
      */
-    onResize(side: MenuSide, breakpoint: number | null) {
+    onResize(side: NavSide, breakpoint: number | null) {
         if (breakpoint === null) {
-            return this.menu.set('desktop');
+            return this.nav.set('desktop');
         }
         return this.ngZone.runOutsideAngular(() =>
             fromEvent(window, 'resize')
                 .pipe(
-                    startWith(this.getMenuType(breakpoint)),
-                    map(() => this.getMenuType(breakpoint)),
+                    startWith(this.getNavType(breakpoint)),
+                    map(() => this.getNavType(breakpoint)),
                     distinctUntilChanged(),
                     takeUntilDestroyed(this.destroyRef),
                 )
-                .subscribe((menuType) => {
+                .subscribe((navType) => {
                     this.ngZone.run(() => {
-                        this.menu.set(menuType);
+                        this.nav.set(navType);
                         // clear animation state
-                        if (menuType === 'desktop') {
+                        if (navType === 'desktop') {
                             this.dispose(side);
                             this.navState.set(null);
                         }
@@ -123,7 +117,7 @@ export class NgxVanOverlay {
      */
     private onCloseEvents(
         overlayRef: OverlayRef,
-        side: MenuSide,
+        side: NavSide,
         closeOnEscapeKeyClick: CloseOnEscapeKeyClick,
         closeOnBackdropClick: CloseOnBackdropClick,
     ) {
@@ -180,23 +174,23 @@ export class NgxVanOverlay {
     }
 
     /**
-     * Menu type based on given breakpoint size: 'mobile' or 'desktop'
+     * Nav type based on given breakpoint size: 'mobile' or 'desktop'
      */
-    private getMenuType(breakPointSize: number) {
+    private getNavType(breakPointSize: number) {
         return window.innerWidth <= breakPointSize ? 'mobile' : 'desktop';
     }
 
     /**
      * Get animation close state based on side type
      */
-    private getNavCloseState(side: MenuSide) {
+    private getNavCloseState(side: NavSide) {
         return side === 'start' ? 'closeLeft' : 'closeRight';
     }
 
     /**
      * Get animation open state based on side type
      */
-    private getNavOpenState(side: MenuSide) {
+    private getNavOpenState(side: NavSide) {
         return side === 'end' ? 'openLeft' : 'openRight';
     }
 }

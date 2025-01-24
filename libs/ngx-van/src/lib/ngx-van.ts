@@ -15,11 +15,11 @@ import {
 import { style, styleTransform } from './ngx-van-animations';
 import { NgxVanOverlay } from './ngx-van-overlay';
 
+export type NavSide = 'start' | 'end';
+
 export type NavState = 'openLeft' | 'closeLeft' | 'openRight' | 'closeRight' | null;
 
-export type MenuType = 'mobile' | 'desktop' | null;
-
-export type MenuSide = 'start' | 'end';
+export type NavType = 'mobile' | 'desktop' | null;
 
 export type CloseOnEscapeKeyClick = 'close' | 'dispose' | false;
 
@@ -29,14 +29,14 @@ export type CloseOnBackdropClick = 'close' | 'dispose' | false;
     selector: 'ngx-van',
     exportAs: 'ngxVan',
     template: `
-        @if (vm.menu() === 'desktop') {
+        @if (api.nav() === 'desktop') {
             <nav class="ngx-van-ssr">
                 <ng-container [ngTemplateOutlet]="content" />
             </nav>
-        } @else if (vm.menu() === 'mobile') {
+        } @else if (api.nav() === 'mobile') {
             <ng-template #portal>
                 <nav
-                    [cdkTrapFocus]="vm.isOpen()"
+                    [cdkTrapFocus]="api.isOpen()"
                     [style]="style()"
                     [style.transform]="transform()"
                     [style.transition]="transition()"
@@ -56,14 +56,14 @@ export class NgxVan {
     private readonly ngxVanOverlay = inject(NgxVanOverlay);
     private readonly viewContainer = inject(ViewContainerRef);
 
-    readonly side = input<MenuSide>('end');
+    readonly side = input<NavSide>('end');
     readonly breakpoint = input<number | null>(991);
     readonly closeOnBackdropClick = input<CloseOnBackdropClick>('close');
     readonly closeOnEscapeKeyClick = input<CloseOnEscapeKeyClick>('close');
     readonly transition = input('transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)');
 
     /**
-     * Portal for mobile menu
+     * Portal for mobile nav
      */
     private readonly portalRef = viewChild.required<TemplateRef<HTMLElement>>('portal');
     private readonly portalTpl = computed(
@@ -71,15 +71,15 @@ export class NgxVan {
     );
 
     /**
-     * Readonly vm properties accessible in templates
+     * Readonly api properties accessible in templates
      */
-    readonly vm = {
-        menu: this.ngxVanOverlay.menu.asReadonly(),
+    readonly api = {
+        nav: this.ngxVanOverlay.nav.asReadonly(),
         isOpen: this.ngxVanOverlay.isOpen.asReadonly(),
     };
 
     protected readonly navState = this.ngxVanOverlay.navState.asReadonly();
-    protected readonly style = style(this.vm.menu, this.side);
+    protected readonly style = style(this.api.nav, this.side);
     protected readonly transform = styleTransform(this.navState, this.side);
 
     constructor() {
@@ -90,11 +90,11 @@ export class NgxVan {
     }
 
     /**
-     * Toggle mobile menu
+     * Toggle mobile nav
      */
-    toggleMobileMenu(triggerEl: HTMLElement) {
+    toggleMobileNav(triggerEl: HTMLElement) {
         if (this.ngxVanOverlay.isOpen()) {
-            this.closeMobileMenu();
+            this.closeMobileNav();
         } else {
             this.ngxVanOverlay.open(
                 triggerEl,
@@ -108,25 +108,25 @@ export class NgxVan {
     }
 
     /**
-     * Closes the mobile menu with animation
+     * Closes the mobile nav with animation
      */
-    closeMobileMenu() {
+    closeMobileNav() {
         this.ngxVanOverlay.close(this.side());
     }
 
     /**
-     * Closes the mobile menu immediately without animation
+     * Closes the mobile nav immediately without animation
      */
-    disposeMobileMenu() {
+    disposeMobileNav() {
         this.ngxVanOverlay.dispose(this.side());
     }
 
     /**
-     * Handles the transition end event for menu animations
+     * Handles the transition end event for nav animations
      */
     protected transitionend(state: NavState) {
         if (state === 'closeLeft' || state === 'closeRight') {
-            this.disposeMobileMenu();
+            this.disposeMobileNav();
         }
     }
 }

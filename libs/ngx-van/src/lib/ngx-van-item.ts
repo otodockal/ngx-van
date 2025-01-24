@@ -13,15 +13,13 @@ export class NgxVanItem {
     readonly ngxVanItem = input<'dispose' | 'close' | ''>('dispose', { alias: 'ngx-van-item' });
 
     protected close() {
-        /**
-         * allow only on mobile
-         */
-        if (this.ngxVaComponent.vm.menu() === 'mobile') {
-            if (this.ngxVanItem() === 'close' || this.ngxVanItem() === '') {
-                this.ngxVaComponent.closeMobileMenu();
-            } else {
-                this.ngxVaComponent.disposeMobileMenu();
-            }
+        if (this.ngxVaComponent.api.nav() !== 'mobile') {
+            return;
+        }
+        if (this.ngxVanItem() === 'close' || this.ngxVanItem() === '') {
+            this.ngxVaComponent.closeMobileNav();
+        } else {
+            this.ngxVaComponent.disposeMobileNav();
         }
     }
 }

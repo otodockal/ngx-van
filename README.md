@@ -29,7 +29,7 @@ import { NgxVan, NgxVanItem, NgxVanTrigger } from 'ngx-van';
 
 ```angular
 <button [ngxVanTrigger]="van">
-    <mat-icon>{{ van.vm.isOpen() ? 'close' : 'menu' }}</mat-icon>
+    <mat-icon>{{ van.api.isOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
 <ngx-van
@@ -55,7 +55,7 @@ import { NgxVan, NgxVanItem, NgxVanTrigger } from 'ngx-van';
         </li>
         <li>
             <a ngx-van-item routerLink="/deleted">
-                @if (van.vm.menu() === 'desktop') {
+                @if (van.api.nav() === 'desktop') {
                     <app-icon>delete</app-icon>
                 }
                 Deleted
@@ -81,7 +81,7 @@ You can customize the transition animation. Here are some examples:
 
 ## CSS
 
--   CSS for mobile menu only.
+-   CSS for mobile nav only.
 -   Add snippet to style.scss. It has to be declared in the global scope.
 -   Change styling according to your preferences.
 
@@ -120,7 +120,7 @@ You can customize the transition animation. Here are some examples:
 
 ## SSR
 
--   In order to prevent desktop menu flickering on mobile (when rendered on the server), add the following CSS snippet.
+-   In order to prevent desktop nav flickering on mobile (when rendered on the server), add the following CSS snippet.
 -   Use only if your website is SSR.
 
 ```scss

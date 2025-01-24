@@ -1,12 +1,12 @@
 import { computed, Signal, untracked } from '@angular/core';
-import { MenuSide, MenuType, NavState } from './ngx-van';
+import { NavSide, NavType, NavState } from './ngx-van';
 
 /**
- * Style for mobile menu
+ * Style for mobile nav
  */
-export function style(menu: Signal<MenuType>, side: Signal<MenuSide>) {
+export function style(nav: Signal<NavType>, side: Signal<NavSide>) {
     return computed(() => {
-        if (menu() === 'mobile') {
+        if (nav() === 'mobile') {
             return untracked(side) === 'end'
                 ? 'position: fixed; right: 0; transform: translate3d(100%, 0, 0)'
                 : 'position: fixed; left: 0; transform: translate3d(-100%, 0, 0)';
@@ -16,11 +16,11 @@ export function style(menu: Signal<MenuType>, side: Signal<MenuSide>) {
 }
 
 /**
- * Style for mobile menu transform
+ * Style for mobile nav transform
  */
-export function styleTransform(navStates: Signal<NavState>, side: Signal<MenuSide>) {
+export function styleTransform(navState: Signal<NavState>, side: Signal<NavSide>) {
     return computed(() => {
-        switch (navStates()) {
+        switch (navState()) {
             case 'openRight':
             case 'openLeft':
                 return 'translate3d(0, 0, 0)';

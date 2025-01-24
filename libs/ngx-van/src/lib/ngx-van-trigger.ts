@@ -4,7 +4,7 @@ import { NgxVan } from './ngx-van';
 @Directive({
     selector: '[ngxVanTrigger]',
     host: {
-        '(click)': 'toggleMobileMenu()',
+        '(click)': 'toggleMobileNav()',
         '[style.display]': '!isVisibleByDevice() && !visible() ? "none" : null',
     },
 })
@@ -14,9 +14,9 @@ export class NgxVanTrigger {
     readonly ngxVanTrigger = input.required<NgxVan>();
     readonly visible = input(false);
 
-    protected isVisibleByDevice = computed(() => this.ngxVanTrigger()?.vm.menu() === 'mobile');
+    protected isVisibleByDevice = computed(() => this.ngxVanTrigger()?.api.nav() === 'mobile');
 
-    protected toggleMobileMenu() {
-        this.ngxVanTrigger()?.toggleMobileMenu(this.el);
+    protected toggleMobileNav() {
+        this.ngxVanTrigger()?.toggleMobileNav(this.el);
     }
 }
