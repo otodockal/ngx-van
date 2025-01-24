@@ -88,7 +88,7 @@ export class NgxVanOverlay {
      * On window resize event check if NavType is 'desktop' and remove overlay eventually
      */
     onResize(side: NavSide, breakpoint: number | null) {
-        if (breakpoint === null) {
+        if (breakpoint === null || !this.isBrowser) {
             return this.nav.set('desktop');
         }
         return this.ngZone.runOutsideAngular(() =>
