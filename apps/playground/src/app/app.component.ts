@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
+import { NgxVan, NgxVanItem, NgxVanTrigger } from 'ngx-van';
 import { IconComponent } from './icon/icon.component';
 
 @Component({
@@ -10,6 +10,6 @@ import { IconComponent } from './icon/icon.component';
     host: {
         class: 'layout',
     },
-    imports: [IconComponent, RouterModule, NgxVan, NgxVanItem, NgxVanTriggerFor]
+    imports: [IconComponent, RouterModule, NgxVan, NgxVanItem, NgxVanTrigger],
 })
 export class AppComponent {}

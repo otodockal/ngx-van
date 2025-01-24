@@ -22,13 +22,13 @@ npm install ngx-van
 ## TS
 
 ```ts
-import { NgxVan, NgxVanItem, NgxVanTriggerFor } from 'ngx-van';
+import { NgxVan, NgxVanItem, NgxVanTrigger } from 'ngx-van';
 ```
 
 ## HTML
 
 ```angular
-<button [ngxVanTriggerFor]="van">
+<button [ngxVanTrigger]="van">
     <mat-icon>{{ van.vm.isOpen() ? 'close' : 'menu' }}</mat-icon>
 </button>
 
