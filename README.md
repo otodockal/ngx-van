@@ -12,12 +12,9 @@
 npm install ngx-van
 ```
 
-## Demos
+## Demo
 
--   [Vertical menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/angular-ivy-afbbds?file=src/app/app.component.html)
--   [Vertical menu, \<ngx-van side="end"\>](https://stackblitz.com/edit/angular-ivy-51wp1y?file=src%2Fapp%2Fapp.component.html)
--   [Horizontal menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/angular-ivy-yczdag?file=src%2Fapp%2Fapp.component.html)
--   [Horizontal menu, \<ngx-van side="end"\>](https://stackblitz.com/edit/angular-ivy-mqsvwt?file=src%2Fapp%2Fapp.component.html)
+-   [Vertical menu, \<ngx-van side="start"\>](https://stackblitz.com/edit/stackblitz-starters-pddasj3g?file=src%2Fmain.ts)
 
 ## TS
 
